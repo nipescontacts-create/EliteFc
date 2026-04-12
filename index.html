@@ -1,0 +1,2321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ÉLITE FC — Programa de Alto Rendimiento</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #ff0033;
+    --red-glow: #ff003380;
+    --red-dim: #cc002a;
+    --red-subtle: #ff003320;
+    --black: #000000;
+    --black2: #080808;
+    --black3: #0f0f0f;
+    --black4: #141414;
+    --glass: rgba(255,255,255,0.04);
+    --glass-border: rgba(255,0,51,0.25);
+    --text: #ffffff;
+    --text-dim: rgba(255,255,255,0.55);
+    --text-faint: rgba(255,255,255,0.2);
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-title: 'Orbitron', sans-serif;
+    --font-body: 'Rajdhani', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── NOISE TEXTURE ─── */
+  body::before {
+    content:'';
+    position:fixed;
+    inset:0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events:none;
+    z-index:9999;
+    opacity:0.5;
+  }
+
+  /* ─── SCREENS ─── */
+  .screen { display:none; min-height:100vh; }
+  .screen.active { display:flex; flex-direction:column; }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  @keyframes pulse-red { 0%,100%{box-shadow:0 0 20px var(--red-glow)} 50%{box-shadow:0 0 50px var(--red-glow),0 0 80px var(--red-glow)} }
+  @keyframes scanline { 0%{top:-10%} 100%{top:110%} }
+  @keyframes flicker { 0%,100%{opacity:1} 92%{opacity:1} 93%{opacity:0.8} 94%{opacity:1} 96%{opacity:0.9} 97%{opacity:1} }
+  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  @keyframes dash { to{stroke-dashoffset:0} }
+  @keyframes glow-pulse { 0%,100%{text-shadow:0 0 10px var(--red),0 0 20px var(--red)} 50%{text-shadow:0 0 20px var(--red),0 0 40px var(--red),0 0 60px var(--red)} }
+  @keyframes bar-fill { from{width:0%} to{width:var(--target-width)} }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  @keyframes slide-in-right { from{opacity:0;transform:translateX(40px)} to{opacity:1;transform:translateX(0)} }
+  @keyframes number-count { from{opacity:0;transform:scale(0.8)} to{opacity:1;transform:scale(1)} }
+
+  /* ────────────────────────────────────────
+     SCREEN 1 — LANDING
+  ──────────────────────────────────────── */
+  #screen-landing {
+    position:relative;
+    justify-content:center;
+    align-items:center;
+    background: #000;
+    overflow:hidden;
+  }
+  .landing-bg {
+    position:absolute;
+    inset:0;
+    background: 
+      radial-gradient(ellipse 80% 60% at 50% 50%, rgba(255,0,51,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 20% 80%, rgba(255,0,51,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 60% at 80% 20%, rgba(255,0,51,0.05) 0%, transparent 60%);
+  }
+  .landing-grid {
+    position:absolute;
+    inset:0;
+    background-image: 
+      linear-gradient(rgba(255,0,51,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,0,51,0.06) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: fadeIn 2s ease forwards;
+  }
+  .scanline {
+    position:absolute;
+    left:0; right:0;
+    height:3px;
+    background: linear-gradient(transparent, rgba(255,0,51,0.4), transparent);
+    animation: scanline 4s linear infinite;
+    pointer-events:none;
+  }
+  .landing-content {
+    position:relative;
+    z-index:10;
+    text-align:center;
+    animation: fadeUp 1s ease forwards;
+    padding: 2rem;
+  }
+  .landing-badge {
+    display:inline-block;
+    border:1px solid var(--red);
+    color:var(--red);
+    font-family:var(--font-title);
+    font-size:0.6rem;
+    letter-spacing:0.3em;
+    padding:0.4rem 1.2rem;
+    margin-bottom:2rem;
+    animation: glow-pulse 3s ease infinite;
+  }
+  .landing-title {
+    font-family:var(--font-display);
+    font-size:clamp(5rem, 15vw, 12rem);
+    letter-spacing:0.05em;
+    line-height:0.85;
+    color:#fff;
+    text-shadow: 0 0 60px rgba(255,0,51,0.3);
+    animation: flicker 8s infinite;
+  }
+  .landing-title span { color:var(--red); }
+  .landing-subtitle {
+    font-family:var(--font-title);
+    font-size:clamp(0.7rem, 2vw, 1rem);
+    letter-spacing:0.5em;
+    color:var(--text-dim);
+    margin:1.5rem 0 3rem;
+    text-transform:uppercase;
+  }
+  .landing-buttons {
+    display:flex;
+    gap:1.5rem;
+    justify-content:center;
+    flex-wrap:wrap;
+  }
+  .btn-primary {
+    background: var(--red);
+    color:#fff;
+    border:none;
+    font-family:var(--font-title);
+    font-size:0.85rem;
+    font-weight:700;
+    letter-spacing:0.2em;
+    padding:1rem 2.5rem;
+    cursor:pointer;
+    text-transform:uppercase;
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+    transition:all 0.2s;
+    animation: pulse-red 3s ease infinite;
+  }
+  .btn-primary:hover { background:#fff; color:var(--red); animation:none; box-shadow:0 0 30px rgba(255,255,255,0.3); }
+  .btn-secondary {
+    background:transparent;
+    color:#fff;
+    border:1px solid rgba(255,255,255,0.3);
+    font-family:var(--font-title);
+    font-size:0.85rem;
+    font-weight:700;
+    letter-spacing:0.2em;
+    padding:1rem 2.5rem;
+    cursor:pointer;
+    text-transform:uppercase;
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+    transition:all 0.2s;
+  }
+  .btn-secondary:hover { border-color:var(--red); color:var(--red); box-shadow:0 0 20px var(--red-glow); }
+  .landing-corner {
+    position:absolute;
+    width:60px; height:60px;
+    border-color:var(--red);
+    border-style:solid;
+    opacity:0.6;
+  }
+  .landing-corner.tl { top:2rem;left:2rem;border-width:2px 0 0 2px; }
+  .landing-corner.tr { top:2rem;right:2rem;border-width:2px 2px 0 0; }
+  .landing-corner.bl { bottom:2rem;left:2rem;border-width:0 0 2px 2px; }
+  .landing-corner.br { bottom:2rem;right:2rem;border-width:0 2px 2px 0; }
+
+  /* ────────────────────────────────────────
+     SCREEN 2 — REGISTRO
+  ──────────────────────────────────────── */
+  #screen-register, #screen-login {
+    justify-content:center;
+    align-items:center;
+    background: var(--black);
+    position:relative;
+    overflow:hidden;
+  }
+  #screen-register::before, #screen-login::before {
+    content:'';
+    position:absolute;
+    inset:0;
+    background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(255,0,51,0.07) 0%, transparent 70%);
+  }
+  .auth-box {
+    position:relative;
+    z-index:10;
+    width:100%;
+    max-width:480px;
+    padding:3rem 2.5rem;
+    background: var(--glass);
+    border:1px solid var(--glass-border);
+    backdrop-filter:blur(20px);
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+    animation: fadeUp 0.6s ease forwards;
+    margin:2rem;
+  }
+  .auth-box::before {
+    content:'';
+    position:absolute;
+    top:0;left:0;right:0;
+    height:2px;
+    background: linear-gradient(90deg, transparent, var(--red), transparent);
+  }
+  .auth-title {
+    font-family:var(--font-display);
+    font-size:2.5rem;
+    letter-spacing:0.05em;
+    margin-bottom:0.3rem;
+    color:#fff;
+  }
+  .auth-subtitle { font-size:0.85rem; color:var(--text-dim); letter-spacing:0.1em; margin-bottom:2rem; }
+  .form-group { margin-bottom:1.3rem; }
+  .form-label {
+    display:block;
+    font-family:var(--font-title);
+    font-size:0.65rem;
+    letter-spacing:0.25em;
+    color:var(--red);
+    margin-bottom:0.5rem;
+    text-transform:uppercase;
+  }
+  .form-input {
+    width:100%;
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.12);
+    border-bottom:1px solid var(--red);
+    color:#fff;
+    font-family:var(--font-body);
+    font-size:1rem;
+    padding:0.8rem 1rem;
+    outline:none;
+    transition:all 0.3s;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+  }
+  .form-input:focus { border-color:var(--red); box-shadow:0 0 15px rgba(255,0,51,0.2); background:rgba(255,0,51,0.05); }
+  .form-input::placeholder { color:var(--text-faint); }
+  .form-input option { background:#111; }
+  .form-error { color:var(--red); font-size:0.8rem; margin-top:1rem; display:none; letter-spacing:0.05em; }
+  .back-link {
+    display:inline-flex;
+    align-items:center;
+    gap:0.5rem;
+    color:var(--text-dim);
+    font-size:0.8rem;
+    letter-spacing:0.1em;
+    cursor:pointer;
+    margin-bottom:1.5rem;
+    transition:color 0.2s;
+  }
+  .back-link:hover { color:var(--red); }
+  .form-select {
+    width:100%;
+    background:rgba(255,0,51,0.05);
+    border:1px solid rgba(255,255,255,0.12);
+    border-bottom:1px solid var(--red);
+    color:#fff;
+    font-family:var(--font-body);
+    font-size:1rem;
+    padding:0.8rem 1rem;
+    outline:none;
+    cursor:pointer;
+    transition:all 0.3s;
+    -webkit-appearance:none;
+  }
+  .form-select:focus { box-shadow:0 0 15px rgba(255,0,51,0.2); }
+
+  /* ────────────────────────────────────────
+     ONBOARDING
+  ──────────────────────────────────────── */
+  #screen-onboarding {
+    background:var(--black);
+    padding:0;
+    position:relative;
+    overflow:hidden;
+  }
+  .onboarding-header {
+    background: rgba(255,0,51,0.05);
+    border-bottom:1px solid var(--glass-border);
+    padding:1.5rem 2rem;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    position:sticky;
+    top:0;
+    z-index:100;
+    backdrop-filter:blur(20px);
+  }
+  .onboarding-logo {
+    font-family:var(--font-display);
+    font-size:1.8rem;
+    color:#fff;
+    letter-spacing:0.1em;
+  }
+  .onboarding-logo span { color:var(--red); }
+  .step-indicator {
+    display:flex;
+    gap:0.5rem;
+    align-items:center;
+  }
+  .step-dot {
+    width:8px; height:8px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.15);
+    transition:all 0.3s;
+  }
+  .step-dot.active { background:var(--red); box-shadow:0 0 10px var(--red); width:24px; border-radius:4px; }
+  .step-dot.done { background:var(--red-dim); }
+  .onboarding-body {
+    flex:1;
+    padding:3rem 2rem;
+    max-width:680px;
+    margin:0 auto;
+    width:100%;
+  }
+  .step-screen { display:none; animation:fadeUp 0.5s ease forwards; }
+  .step-screen.active { display:block; }
+  .step-tag {
+    font-family:var(--font-title);
+    font-size:0.6rem;
+    letter-spacing:0.4em;
+    color:var(--red);
+    margin-bottom:0.8rem;
+    text-transform:uppercase;
+  }
+  .step-title {
+    font-family:var(--font-display);
+    font-size:clamp(2rem, 5vw, 3.5rem);
+    letter-spacing:0.03em;
+    line-height:1;
+    margin-bottom:0.8rem;
+  }
+  .step-desc { color:var(--text-dim); font-size:1rem; margin-bottom:2.5rem; line-height:1.6; }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  .day-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:0.5rem; margin-top:0.5rem; }
+  .day-btn {
+    aspect-ratio:1;
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.1);
+    color:var(--text-dim);
+    font-family:var(--font-title);
+    font-size:0.65rem;
+    cursor:pointer;
+    transition:all 0.2s;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    letter-spacing:0.05em;
+  }
+  .day-btn.selected { background:var(--red); border-color:var(--red); color:#fff; box-shadow:0 0 15px var(--red-glow); }
+  .day-btn:hover:not(.selected) { border-color:var(--red); color:var(--red); }
+  .test-card {
+    background:var(--glass);
+    border:1px solid var(--glass-border);
+    padding:1.5rem;
+    margin-bottom:1rem;
+    clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 0 100%);
+    transition:all 0.3s;
+  }
+  .test-card:hover { background:rgba(255,0,51,0.05); }
+  .test-card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; }
+  .test-card-name { font-family:var(--font-title); font-size:0.8rem; letter-spacing:0.15em; color:var(--red); text-transform:uppercase; }
+  .test-card-range { font-size:0.75rem; color:var(--text-faint); }
+  .test-input-wrap { display:flex; gap:1rem; align-items:center; }
+  .test-input { flex:1; }
+  .test-unit { font-family:var(--font-title); font-size:0.8rem; color:var(--text-dim); white-space:nowrap; }
+  .radio-group { display:flex; flex-direction:column; gap:0.6rem; margin-top:0.5rem; }
+  .radio-option {
+    display:flex;
+    align-items:center;
+    gap:1rem;
+    padding:0.8rem 1rem;
+    background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.08);
+    cursor:pointer;
+    transition:all 0.2s;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+  }
+  .radio-option:hover, .radio-option.selected { background:rgba(255,0,51,0.08); border-color:var(--red); }
+  .radio-dot {
+    width:14px; height:14px;
+    border:2px solid rgba(255,255,255,0.3);
+    border-radius:50%;
+    flex-shrink:0;
+    transition:all 0.2s;
+  }
+  .radio-option.selected .radio-dot { background:var(--red); border-color:var(--red); box-shadow:0 0 8px var(--red-glow); }
+  .radio-text { font-size:0.9rem; color:var(--text-dim); }
+  .radio-option.selected .radio-text { color:#fff; }
+  .block-separator {
+    font-family:var(--font-display);
+    font-size:1.5rem;
+    color:var(--red);
+    letter-spacing:0.1em;
+    margin:2rem 0 1.2rem;
+    padding-bottom:0.5rem;
+    border-bottom:1px solid rgba(255,0,51,0.2);
+  }
+
+  /* ────────────────────────────────────────
+     DASHBOARD
+  ──────────────────────────────────────── */
+  #screen-dashboard { background:var(--black); flex-direction:row; }
+  .sidebar {
+    width:260px;
+    flex-shrink:0;
+    background:var(--black3);
+    border-right:1px solid rgba(255,0,51,0.15);
+    display:flex;
+    flex-direction:column;
+    position:fixed;
+    top:0; left:0; bottom:0;
+    z-index:50;
+    transition:transform 0.3s;
+  }
+  .sidebar-logo {
+    padding:2rem 1.5rem 1.5rem;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+  }
+  .sidebar-logo-text {
+    font-family:var(--font-display);
+    font-size:2rem;
+    letter-spacing:0.1em;
+    color:#fff;
+  }
+  .sidebar-logo-text span { color:var(--red); }
+  .sidebar-logo-sub { font-size:0.65rem; color:var(--text-faint); letter-spacing:0.3em; margin-top:0.2rem; }
+  .sidebar-player {
+    padding:1.5rem;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+  }
+  .player-avatar {
+    width:48px; height:48px;
+    background:var(--red);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:var(--font-display);
+    font-size:1.3rem;
+    color:#fff;
+    margin-bottom:0.8rem;
+    box-shadow:0 0 20px var(--red-glow);
+  }
+  .player-name { font-family:var(--font-title); font-weight:700; font-size:0.95rem; margin-bottom:0.2rem; }
+  .player-pos { font-size:0.75rem; color:var(--text-faint); letter-spacing:0.1em; }
+  .sidebar-nav { flex:1; padding:1rem 0; overflow-y:auto; }
+  .nav-item {
+    display:flex;
+    align-items:center;
+    gap:1rem;
+    padding:0.85rem 1.5rem;
+    color:var(--text-dim);
+    cursor:pointer;
+    transition:all 0.2s;
+    border-left:3px solid transparent;
+    font-size:0.85rem;
+    letter-spacing:0.05em;
+    font-weight:600;
+    position:relative;
+  }
+  .nav-item:hover { color:#fff; background:rgba(255,255,255,0.03); }
+  .nav-item.active { color:#fff; border-left-color:var(--red); background:rgba(255,0,51,0.08); }
+  .nav-item.active::after {
+    content:'';
+    position:absolute;
+    right:0; top:0; bottom:0;
+    width:1px;
+    background:var(--red);
+    box-shadow:0 0 10px var(--red);
+  }
+  .nav-icon { font-size:1.1rem; width:20px; text-align:center; }
+  .sidebar-bottom { padding:1.5rem; border-top:1px solid rgba(255,255,255,0.05); }
+  .logout-btn {
+    width:100%;
+    background:transparent;
+    border:1px solid rgba(255,0,51,0.3);
+    color:var(--red);
+    font-family:var(--font-body);
+    font-size:0.8rem;
+    padding:0.7rem;
+    cursor:pointer;
+    letter-spacing:0.15em;
+    transition:all 0.2s;
+    text-transform:uppercase;
+  }
+  .logout-btn:hover { background:var(--red); color:#fff; }
+
+  /* MAIN CONTENT */
+  .main-content {
+    margin-left:260px;
+    flex:1;
+    min-height:100vh;
+    background:var(--black);
+  }
+  .topbar {
+    padding:1.5rem 2.5rem;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    position:sticky;
+    top:0;
+    z-index:40;
+    background:rgba(0,0,0,0.9);
+    backdrop-filter:blur(20px);
+  }
+  .topbar-left { display:flex; flex-direction:column; }
+  .topbar-greeting {
+    font-family:var(--font-display);
+    font-size:1.8rem;
+    letter-spacing:0.05em;
+    line-height:1;
+  }
+  .topbar-greeting span { color:var(--red); }
+  .topbar-meta { font-size:0.75rem; color:var(--text-dim); letter-spacing:0.15em; margin-top:0.3rem; }
+  .topbar-right { display:flex; align-items:center; gap:1.5rem; }
+  .topbar-date {
+    font-family:var(--font-title);
+    font-size:0.7rem;
+    color:var(--text-dim);
+    letter-spacing:0.1em;
+    text-align:right;
+  }
+  .page-content { padding:2.5rem; display:none; }
+  .page-content.active { display:block; animation:fadeIn 0.4s ease; }
+
+  /* ─── DASHBOARD PAGE ─── */
+  .dashboard-grid {
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    grid-template-rows:auto;
+    gap:1.5rem;
+  }
+  @media(max-width:1100px) { .dashboard-grid { grid-template-columns:1fr 1fr; } }
+  @media(max-width:700px) { .dashboard-grid { grid-template-columns:1fr; } }
+  .card {
+    background:var(--glass);
+    border:1px solid rgba(255,255,255,0.07);
+    padding:1.8rem;
+    position:relative;
+    clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 0 100%);
+    transition:all 0.3s;
+  }
+  .card:hover { border-color:rgba(255,0,51,0.3); background:rgba(255,0,51,0.03); }
+  .card::before {
+    content:'';
+    position:absolute;
+    top:0;left:0;right:0;
+    height:1px;
+    background:linear-gradient(90deg, var(--red), transparent);
+    opacity:0.6;
+  }
+  .card-title {
+    font-family:var(--font-title);
+    font-size:0.65rem;
+    letter-spacing:0.3em;
+    color:var(--red);
+    text-transform:uppercase;
+    margin-bottom:1.2rem;
+  }
+  .card-span2 { grid-column:span 2; }
+  .card-span3 { grid-column:span 3; }
+  /* Progress ring */
+  .progress-ring-wrap {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:2rem;
+    flex-wrap:wrap;
+  }
+  .ring-container { position:relative; width:140px; height:140px; animation:float 4s ease infinite; }
+  .ring-container svg { transform:rotate(-90deg); }
+  .ring-bg { stroke:rgba(255,255,255,0.06); }
+  .ring-fill {
+    stroke:var(--red);
+    stroke-linecap:round;
+    filter:drop-shadow(0 0 6px var(--red));
+    transition:stroke-dashoffset 1s ease;
+  }
+  .ring-label {
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+  }
+  .ring-percent { font-family:var(--font-display); font-size:2.2rem; color:#fff; line-height:1; }
+  .ring-sub { font-size:0.6rem; color:var(--text-dim); letter-spacing:0.15em; margin-top:0.2rem; }
+  .ring-tasks { flex:1; min-width:150px; }
+  .task-item {
+    display:flex;
+    align-items:center;
+    gap:0.8rem;
+    padding:0.6rem 0;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+    cursor:pointer;
+  }
+  .task-check {
+    width:18px;height:18px;
+    border:2px solid rgba(255,255,255,0.2);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:0.7rem;
+    transition:all 0.2s;
+    flex-shrink:0;
+  }
+  .task-item.done .task-check { background:var(--red); border-color:var(--red); color:#fff; }
+  .task-item.done .task-label { text-decoration:line-through; color:var(--text-faint); }
+  .task-label { font-size:0.85rem; color:var(--text-dim); transition:all 0.2s; }
+  /* Wellness */
+  .wellness-row { display:flex; gap:1rem; margin-bottom:0.8rem; }
+  .wellness-item { flex:1; }
+  .wellness-label { font-size:0.7rem; color:var(--text-dim); letter-spacing:0.1em; margin-bottom:0.5rem; }
+  .wellness-faces { display:flex; gap:0.4rem; }
+  .face-btn {
+    font-size:1.4rem;
+    cursor:pointer;
+    opacity:0.3;
+    transition:all 0.2s;
+    background:none;
+    border:none;
+  }
+  .face-btn:hover, .face-btn.selected { opacity:1; transform:scale(1.2); }
+  .stars-row { display:flex; gap:0.3rem; }
+  .star-btn {
+    font-size:1.2rem;
+    cursor:pointer;
+    color:rgba(255,255,255,0.2);
+    transition:all 0.2s;
+    background:none;
+    border:none;
+  }
+  .star-btn.lit { color:var(--red); text-shadow:0 0 8px var(--red); }
+  /* Day card */
+  .day-card-highlight {
+    background:linear-gradient(135deg, rgba(255,0,51,0.15), rgba(255,0,51,0.03));
+    border:1px solid rgba(255,0,51,0.4);
+    padding:1.5rem;
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);
+    margin-bottom:1rem;
+  }
+  .day-type { font-family:var(--font-display); font-size:1.6rem; color:#fff; letter-spacing:0.05em; }
+  .day-type span { color:var(--red); }
+  .day-note { font-size:0.8rem; color:var(--text-dim); margin-top:0.3rem; }
+  .alert-box {
+    background:rgba(255,165,0,0.08);
+    border:1px solid rgba(255,165,0,0.3);
+    border-left:3px solid rgba(255,165,0,0.8);
+    padding:1rem;
+    font-size:0.85rem;
+    color:rgba(255,200,100,0.9);
+    margin-top:1rem;
+    display:none;
+  }
+  /* Stats mini */
+  .stat-row { display:flex; flex-direction:column; gap:0.8rem; }
+  .stat-line { display:flex; flex-direction:column; gap:0.3rem; }
+  .stat-header { display:flex; justify-content:space-between; font-size:0.8rem; }
+  .stat-name { color:var(--text-dim); }
+  .stat-val { color:#fff; font-family:var(--font-title); font-weight:700; }
+  .stat-bar-bg { height:3px; background:rgba(255,255,255,0.07); }
+  .stat-bar-fill { height:100%; background:var(--red); box-shadow:0 0 6px var(--red); --target-width:60%; animation: bar-fill 1.5s ease forwards; }
+  .quote-text {
+    font-family:var(--font-display);
+    font-size:clamp(1.2rem, 2.5vw, 1.8rem);
+    letter-spacing:0.03em;
+    line-height:1.3;
+    color:#fff;
+    text-shadow:0 0 30px rgba(255,0,51,0.3);
+    margin-bottom:0.5rem;
+  }
+  .quote-author { font-size:0.75rem; color:var(--red); letter-spacing:0.2em; }
+
+  /* ─── GYM PAGE ─── */
+  .workout-header {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:2rem;
+    flex-wrap:wrap;
+    gap:1rem;
+  }
+  .workout-title { font-family:var(--font-display); font-size:2.5rem; letter-spacing:0.05em; }
+  .workout-title span { color:var(--red); }
+  .exercise-list { display:flex; flex-direction:column; gap:1rem; }
+  .exercise-card {
+    background:var(--glass);
+    border:1px solid rgba(255,255,255,0.07);
+    padding:1.5rem;
+    display:grid;
+    grid-template-columns:auto 1fr auto;
+    gap:1.5rem;
+    align-items:center;
+    transition:all 0.3s;
+    cursor:pointer;
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+  }
+  .exercise-card:hover { border-color:rgba(255,0,51,0.4); transform:translateX(4px); }
+  .exercise-card.completed { border-left:3px solid var(--red); opacity:0.6; }
+  .exercise-num {
+    font-family:var(--font-display);
+    font-size:2.5rem;
+    color:rgba(255,0,51,0.2);
+    line-height:1;
+    width:40px;
+  }
+  .exercise-card.completed .exercise-num { color:var(--red); }
+  .exercise-info {}
+  .exercise-name { font-family:var(--font-title); font-weight:700; font-size:1rem; margin-bottom:0.3rem; }
+  .exercise-sets { font-size:0.8rem; color:var(--text-dim); letter-spacing:0.1em; }
+  .exercise-sets span { color:#fff; font-weight:600; }
+  .exercise-actions { display:flex; gap:0.5rem; }
+  .btn-small {
+    background:transparent;
+    border:1px solid rgba(255,255,255,0.15);
+    color:var(--text-dim);
+    font-family:var(--font-body);
+    font-size:0.7rem;
+    padding:0.4rem 0.8rem;
+    cursor:pointer;
+    letter-spacing:0.1em;
+    transition:all 0.2s;
+    text-transform:uppercase;
+  }
+  .btn-small:hover { border-color:var(--red); color:var(--red); }
+  .btn-small.done { background:var(--red); border-color:var(--red); color:#fff; }
+  /* Timer */
+  .timer-widget {
+    background:rgba(255,0,51,0.05);
+    border:1px solid rgba(255,0,51,0.2);
+    padding:1.5rem 2rem;
+    display:flex;
+    align-items:center;
+    gap:2rem;
+    flex-wrap:wrap;
+    margin-bottom:2rem;
+  }
+  .timer-display {
+    font-family:var(--font-display);
+    font-size:3rem;
+    letter-spacing:0.1em;
+    color:#fff;
+    min-width:120px;
+  }
+  .timer-label { font-size:0.7rem; color:var(--text-dim); letter-spacing:0.2em; margin-bottom:0.3rem; }
+  .timer-btns { display:flex; gap:0.8rem; }
+  .btn-timer {
+    background:var(--red);
+    border:none;
+    color:#fff;
+    font-family:var(--font-body);
+    font-size:0.8rem;
+    padding:0.6rem 1.2rem;
+    cursor:pointer;
+    letter-spacing:0.1em;
+    transition:all 0.2s;
+    text-transform:uppercase;
+  }
+  .btn-timer:hover { background:#fff; color:var(--red); }
+  .btn-timer.secondary { background:transparent; border:1px solid rgba(255,255,255,0.2); color:var(--text-dim); }
+  .btn-timer.secondary:hover { border-color:var(--red); color:var(--red); background:transparent; }
+
+  /* ─── NUTRITION PAGE ─── */
+  .macro-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1.5rem; }
+  .macro-card {
+    background:var(--glass);
+    border:1px solid rgba(255,255,255,0.07);
+    padding:1.5rem;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+  }
+  .macro-card::after {
+    content:'';
+    position:absolute;
+    bottom:0;left:0;right:0;
+    height:3px;
+    background:var(--accent, var(--red));
+  }
+  .macro-val { font-family:var(--font-display); font-size:2.5rem; color:#fff; }
+  .macro-unit { font-size:0.75rem; color:var(--text-dim); margin-left:0.2rem; }
+  .macro-name { font-family:var(--font-title); font-size:0.65rem; letter-spacing:0.25em; color:var(--text-dim); text-transform:uppercase; margin-top:0.3rem; }
+  .water-tracker { display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.8rem; }
+  .water-cup {
+    font-size:1.5rem;
+    cursor:pointer;
+    opacity:0.2;
+    transition:all 0.2s;
+    user-select:none;
+  }
+  .water-cup.filled { opacity:1; filter:drop-shadow(0 0 6px rgba(0,150,255,0.8)); }
+  .supplement-item {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0.8rem 0;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+    font-size:0.9rem;
+  }
+  .supplement-name { color:var(--text-dim); }
+  .supplement-dose { color:var(--red); font-family:var(--font-title); font-weight:700; letter-spacing:0.1em; }
+  .timing-card {
+    background:rgba(255,0,51,0.04);
+    border:1px solid rgba(255,0,51,0.15);
+    padding:1.2rem 1.5rem;
+    margin-bottom:0.8rem;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+  }
+  .timing-phase { font-family:var(--font-title); font-size:0.7rem; color:var(--red); letter-spacing:0.2em; margin-bottom:0.4rem; }
+  .timing-desc { font-size:0.85rem; color:var(--text-dim); line-height:1.5; }
+
+  /* ─── TACTICAL PAGE ─── */
+  .content-feed { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:1.2rem; }
+  .content-card {
+    background:var(--glass);
+    border:1px solid rgba(255,255,255,0.07);
+    overflow:hidden;
+    cursor:pointer;
+    transition:all 0.3s;
+    clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 0 100%);
+  }
+  .content-card:hover { border-color:rgba(255,0,51,0.4); transform:translateY(-4px); box-shadow:0 10px 40px rgba(255,0,51,0.1); }
+  .content-thumb {
+    aspect-ratio:16/9;
+    background:linear-gradient(135deg, rgba(255,0,51,0.2), rgba(0,0,0,0.8));
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:2.5rem;
+    position:relative;
+    overflow:hidden;
+  }
+  .content-thumb::after {
+    content:'▶';
+    position:absolute;
+    width:50px;height:50px;
+    background:rgba(255,0,51,0.8);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:50%;
+    font-size:1rem;
+    backdrop-filter:blur(5px);
+  }
+  .content-body { padding:1rem; }
+  .content-tag { font-family:var(--font-title); font-size:0.6rem; letter-spacing:0.2em; color:var(--red); margin-bottom:0.4rem; }
+  .content-title { font-family:var(--font-title); font-weight:700; font-size:0.9rem; margin-bottom:0.3rem; }
+  .content-desc { font-size:0.75rem; color:var(--text-dim); line-height:1.4; }
+
+  /* ─── PROGRESS PAGE ─── */
+  .progress-stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:2rem; }
+  @media(max-width:900px) { .progress-stats-grid { grid-template-columns:repeat(2,1fr); } }
+  .prog-stat {
+    background:var(--glass);
+    border:1px solid rgba(255,255,255,0.07);
+    padding:1.5rem;
+    text-align:center;
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+  }
+  .prog-stat-val { font-family:var(--font-display); font-size:2rem; color:#fff; }
+  .prog-stat-val .positive { color:#00ff88; text-shadow:0 0 10px rgba(0,255,136,0.5); }
+  .prog-stat-name { font-size:0.7rem; color:var(--text-dim); letter-spacing:0.15em; margin-top:0.3rem; }
+  .chart-container { position:relative; height:200px; }
+  .chart-bars {
+    display:flex;
+    align-items:flex-end;
+    gap:0.8rem;
+    height:100%;
+    padding:1rem 0 0;
+  }
+  .chart-bar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:0.5rem; height:100%; }
+  .chart-bar-bg { flex:1; width:100%; background:rgba(255,255,255,0.04); position:relative; display:flex; align-items:flex-end; }
+  .chart-bar-fill {
+    width:100%;
+    background:linear-gradient(to top, var(--red), rgba(255,0,51,0.4));
+    box-shadow:0 0 10px var(--red-glow);
+    transition:height 1s ease;
+  }
+  .chart-month { font-size:0.65rem; color:var(--text-faint); letter-spacing:0.1em; }
+  .chart-val { font-family:var(--font-title); font-size:0.8rem; color:#fff; }
+  .badge-grid { display:flex; flex-wrap:wrap; gap:1rem; }
+  .badge {
+    background:rgba(255,0,51,0.08);
+    border:1px solid rgba(255,0,51,0.2);
+    padding:1rem 1.5rem;
+    display:flex;
+    align-items:center;
+    gap:0.8rem;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+    transition:all 0.3s;
+  }
+  .badge:hover { background:rgba(255,0,51,0.15); }
+  .badge-icon { font-size:1.5rem; }
+  .badge-info {}
+  .badge-name { font-family:var(--font-title); font-size:0.8rem; font-weight:700; margin-bottom:0.1rem; }
+  .badge-desc { font-size:0.7rem; color:var(--text-dim); }
+  .badge.locked { opacity:0.3; filter:grayscale(1); }
+
+  /* ─── MATCH DAY PAGE ─── */
+  .calendar-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:0.4rem; margin:1rem 0; }
+  .cal-header { font-family:var(--font-title); font-size:0.65rem; letter-spacing:0.1em; color:var(--text-faint); text-align:center; padding:0.3rem; }
+  .cal-day {
+    aspect-ratio:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:0.85rem;
+    cursor:pointer;
+    border:1px solid transparent;
+    transition:all 0.2s;
+    font-family:var(--font-title);
+    font-weight:600;
+    border-radius:2px;
+  }
+  .cal-day:hover { border-color:rgba(255,0,51,0.3); background:rgba(255,0,51,0.05); }
+  .cal-day.match { background:var(--red); color:#fff; box-shadow:0 0 15px var(--red-glow); }
+  .cal-day.training { background:rgba(255,255,255,0.06); }
+  .cal-day.today { border-color:var(--red); }
+  .cal-day.empty { cursor:default; }
+  .match-prep-timeline { display:flex; flex-direction:column; gap:0; margin-top:1.5rem; }
+  .timeline-item {
+    display:flex;
+    gap:1rem;
+    align-items:flex-start;
+    padding:1rem 0;
+    border-left:2px solid rgba(255,255,255,0.07);
+    padding-left:1.5rem;
+    margin-left:0.5rem;
+    position:relative;
+  }
+  .timeline-item::before {
+    content:'';
+    position:absolute;
+    left:-5px;top:1.2rem;
+    width:8px;height:8px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.2);
+  }
+  .timeline-item.active::before { background:var(--red); box-shadow:0 0 8px var(--red); }
+  .timeline-item.active { border-left-color:var(--red); }
+  .timeline-day { font-family:var(--font-title); font-size:0.65rem; color:var(--red); letter-spacing:0.15em; min-width:80px; padding-top:0.1rem; }
+  .timeline-content { font-size:0.85rem; color:var(--text-dim); line-height:1.5; }
+  .timeline-content strong { color:#fff; display:block; margin-bottom:0.2rem; font-family:var(--font-title); }
+
+  /* ─── SURVEY PAGE ─── */
+  .survey-card {
+    background:var(--glass);
+    border:1px solid rgba(255,255,255,0.07);
+    padding:2rem;
+    margin-bottom:1.5rem;
+    clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 0 100%);
+  }
+  .survey-q { font-family:var(--font-title); font-weight:700; font-size:1rem; margin-bottom:1rem; }
+  .slider-wrap { display:flex; flex-direction:column; gap:0.5rem; }
+  .custom-slider {
+    -webkit-appearance:none;
+    width:100%;
+    height:3px;
+    background:rgba(255,255,255,0.1);
+    outline:none;
+    border-radius:0;
+  }
+  .custom-slider::-webkit-slider-thumb {
+    -webkit-appearance:none;
+    width:18px;height:18px;
+    background:var(--red);
+    cursor:pointer;
+    box-shadow:0 0 10px var(--red-glow);
+    clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  }
+  .slider-labels { display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-faint); }
+  .slider-val { font-family:var(--font-display); font-size:2rem; color:var(--red); text-align:center; }
+
+  /* ─── SECTION TITLES ─── */
+  .section-header { margin-bottom:2rem; }
+  .section-tag { font-family:var(--font-title); font-size:0.6rem; letter-spacing:0.35em; color:var(--red); margin-bottom:0.4rem; text-transform:uppercase; }
+  .section-title { font-family:var(--font-display); font-size:clamp(1.8rem, 4vw, 2.8rem); letter-spacing:0.05em; }
+
+  /* ─── UTILITY ─── */
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+  @media(max-width:800px) { .grid-2 { grid-template-columns:1fr; } }
+  .mt-1 { margin-top:0.8rem; }
+  .mt-2 { margin-top:1.5rem; }
+  .mb-1 { margin-bottom:0.8rem; }
+  .mb-2 { margin-bottom:1.5rem; }
+  .red { color:var(--red); }
+  .dim { color:var(--text-dim); }
+  .text-center { text-align:center; }
+  .full-btn {
+    width:100%;
+    background:var(--red);
+    border:none;
+    color:#fff;
+    font-family:var(--font-title);
+    font-size:0.85rem;
+    font-weight:700;
+    letter-spacing:0.2em;
+    padding:1.1rem;
+    cursor:pointer;
+    text-transform:uppercase;
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+    transition:all 0.2s;
+    margin-top:1.5rem;
+  }
+  .full-btn:hover { background:#fff; color:var(--red); }
+  .notification {
+    position:fixed;
+    top:2rem;right:2rem;
+    background:var(--black3);
+    border:1px solid var(--red);
+    border-left:4px solid var(--red);
+    padding:1rem 1.5rem;
+    font-family:var(--font-title);
+    font-size:0.85rem;
+    letter-spacing:0.05em;
+    z-index:9000;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+    transform:translateX(calc(100% + 3rem));
+    transition:transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    max-width:320px;
+    box-shadow:0 0 30px rgba(255,0,51,0.2);
+  }
+  .notification.show { transform:translateX(0); }
+  .notification-title { color:var(--red); font-size:0.7rem; letter-spacing:0.2em; margin-bottom:0.3rem; }
+  .notification-msg { color:#fff; }
+
+  /* MOBILE SIDEBAR TOGGLE */
+  .sidebar-toggle {
+    display:none;
+    position:fixed;
+    bottom:2rem;right:2rem;
+    width:56px;height:56px;
+    background:var(--red);
+    border:none;
+    border-radius:50%;
+    font-size:1.3rem;
+    color:#fff;
+    cursor:pointer;
+    z-index:200;
+    box-shadow:0 0 20px var(--red-glow);
+  }
+  @media(max-width:900px) {
+    .sidebar { transform:translateX(-100%); }
+    .sidebar.open { transform:translateX(0); }
+    .main-content { margin-left:0; }
+    .sidebar-toggle { display:flex; align-items:center; justify-content:center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── NOTIFICATION ─── -->
+<div class="notification" id="notification">
+  <div class="notification-title">⚡ ALERTA</div>
+  <div class="notification-msg" id="notif-msg">Mensaje</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 1 — LANDING
+══════════════════════════════════════ -->
+<div class="screen active" id="screen-landing">
+  <div class="landing-bg"></div>
+  <div class="landing-grid"></div>
+  <div class="scanline"></div>
+  <div class="landing-corner tl"></div>
+  <div class="landing-corner tr"></div>
+  <div class="landing-corner bl"></div>
+  <div class="landing-corner br"></div>
+  <div class="landing-content">
+    <div class="landing-badge">Programa de Rendimiento — Temporada 2024/25</div>
+    <div class="landing-title">ÉLITE<span>FC</span></div>
+    <div class="landing-subtitle">Alto Rendimiento · Fútbol Profesional · Ciencia Aplicada</div>
+    <div class="landing-buttons">
+      <button class="btn-primary" onclick="showScreen('screen-register')">▶ Registrarse</button>
+      <button class="btn-secondary" onclick="showScreen('screen-login')">Iniciar Sesión</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 2 — REGISTRO
+══════════════════════════════════════ -->
+<div class="screen" id="screen-register">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 50% 50% at 50% 50%, rgba(255,0,51,0.07) 0%, transparent 70%);pointer-events:none;"></div>
+  <div style="display:flex;justify-content:center;align-items:center;min-height:100vh;padding:2rem;">
+    <div class="auth-box">
+      <div class="back-link" onclick="showScreen('screen-landing')">← Volver</div>
+      <div class="auth-title">Registro</div>
+      <div class="auth-subtitle">// ACCESO CONTROLADO — CÓDIGO REQUERIDO</div>
+      <div class="form-group">
+        <label class="form-label">Usuario</label>
+        <input class="form-input" id="reg-user" type="text" placeholder="tu_usuario" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <input class="form-input" id="reg-pass" type="password" placeholder="••••••••">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Código de Acceso</label>
+        <input class="form-input" id="reg-code" type="text" placeholder="Código secreto" autocomplete="off">
+      </div>
+      <div class="form-error" id="reg-error">❌ Código de acceso incorrecto o datos inválidos.</div>
+      <button class="full-btn" onclick="doRegister()">Crear Cuenta →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 3 — LOGIN
+══════════════════════════════════════ -->
+<div class="screen" id="screen-login">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 50% 50% at 50% 50%, rgba(255,0,51,0.07) 0%, transparent 70%);pointer-events:none;"></div>
+  <div style="display:flex;justify-content:center;align-items:center;min-height:100vh;padding:2rem;">
+    <div class="auth-box">
+      <div class="back-link" onclick="showScreen('screen-landing')">← Volver</div>
+      <div class="auth-title">Acceso</div>
+      <div class="auth-subtitle">// PROGRAMA ÉLITE — TEMPORADA 2024/25</div>
+      <div class="form-group">
+        <label class="form-label">Usuario</label>
+        <input class="form-input" id="login-user" type="text" placeholder="tu_usuario" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <input class="form-input" id="login-pass" type="password" placeholder="••••••••">
+      </div>
+      <div class="form-error" id="login-error">❌ Usuario o contraseña incorrectos.</div>
+      <button class="full-btn" onclick="doLogin()">Entrar →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 4 — ONBOARDING
+══════════════════════════════════════ -->
+<div class="screen" id="screen-onboarding">
+  <div class="onboarding-header">
+    <div class="onboarding-logo">ÉLITE<span>FC</span></div>
+    <div class="step-indicator">
+      <div class="step-dot active" id="dot-0"></div>
+      <div class="step-dot" id="dot-1"></div>
+      <div class="step-dot" id="dot-2"></div>
+      <div class="step-dot" id="dot-3"></div>
+    </div>
+  </div>
+  <div class="onboarding-body">
+
+    <!-- STEP 0: PERFIL -->
+    <div class="step-screen active" id="step-0">
+      <div class="step-tag">Paso 01 / 04</div>
+      <div class="step-title">Tu Perfil</div>
+      <div class="step-desc">Necesitamos conocerte para diseñar tu programa a medida.</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nombre</label>
+          <input class="form-input" id="p-nombre" type="text" placeholder="Nombre">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Apellidos</label>
+          <input class="form-input" id="p-apellidos" type="text" placeholder="Apellidos">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Edad</label>
+          <input class="form-input" id="p-edad" type="number" placeholder="Ej: 22">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Posición</label>
+          <select class="form-select" id="p-posicion">
+            <option value="">Seleccionar...</option>
+            <option>Portero</option>
+            <option>Central</option>
+            <option>Lateral Derecho</option>
+            <option>Lateral Izquierdo</option>
+            <option>Mediocentro Defensivo</option>
+            <option>Mediocentro</option>
+            <option>Mediapunta</option>
+            <option>Extremo Derecho</option>
+            <option>Extremo Izquierdo</option>
+            <option>Delantero Centro</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Peso (kg)</label>
+          <input class="form-input" id="p-peso" type="number" placeholder="Ej: 75">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Altura (cm)</label>
+          <input class="form-input" id="p-altura" type="number" placeholder="Ej: 180">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Equipo</label>
+        <input class="form-input" id="p-equipo" type="text" placeholder="Nombre de tu equipo">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Días de entrenamiento con el equipo</label>
+        <div class="day-grid">
+          <div class="day-btn" data-day="L" onclick="toggleDay(this)">L</div>
+          <div class="day-btn" data-day="M" onclick="toggleDay(this)">M</div>
+          <div class="day-btn" data-day="X" onclick="toggleDay(this)">X</div>
+          <div class="day-btn" data-day="J" onclick="toggleDay(this)">J</div>
+          <div class="day-btn" data-day="V" onclick="toggleDay(this)">V</div>
+          <div class="day-btn" data-day="S" onclick="toggleDay(this)">S</div>
+          <div class="day-btn" data-day="D" onclick="toggleDay(this)">D</div>
+        </div>
+      </div>
+      <button class="full-btn" onclick="nextStep(1)">Continuar →</button>
+    </div>
+
+    <!-- STEP 1: TESTS FÍSICOS -->
+    <div class="step-screen" id="step-1">
+      <div class="step-tag">Paso 02 / 04</div>
+      <div class="step-title">Tests de<br><span style="color:var(--red)">Rendimiento</span></div>
+      <div class="step-desc">Registra tus marcas iniciales. Estas serán tu línea base para medir tu progreso.</div>
+
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-name">🦘 Salto Vertical (CMJ)</div>
+          <div class="test-card-range">30 – 60 cm</div>
+        </div>
+        <p style="font-size:0.8rem;color:var(--text-dim);margin-bottom:1rem;line-height:1.5;">Manos en cadera, flexión rápida de rodillas y salto máximo sin usar los brazos.</p>
+        <div class="test-input-wrap">
+          <input class="form-input test-input" id="t-salto" type="number" placeholder="Ej: 42">
+          <span class="test-unit">cm</span>
+        </div>
+      </div>
+
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-name">⚡ Sprint 30 metros</div>
+          <div class="test-card-range">3.8 – 4.6 seg</div>
+        </div>
+        <p style="font-size:0.8rem;color:var(--text-dim);margin-bottom:1rem;line-height:1.5;">Salida en pie. Cronometra tu tiempo al recorrer 30 metros a máxima intensidad.</p>
+        <div class="test-input-wrap">
+          <input class="form-input test-input" id="t-sprint" type="number" step="0.01" placeholder="Ej: 4.12">
+          <span class="test-unit">seg</span>
+        </div>
+      </div>
+
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-name">🔄 Yo-Yo Recovery Test Nv.1</div>
+          <div class="test-card-range">1200 – 2400 m</div>
+        </div>
+        <p style="font-size:0.8rem;color:var(--text-dim);margin-bottom:1rem;line-height:1.5;">Carreras de 20m marcadas por pitido. Anota la distancia total al fallar.</p>
+        <div class="test-input-wrap">
+          <input class="form-input test-input" id="t-yoyo" type="number" placeholder="Ej: 1760">
+          <span class="test-unit">metros</span>
+        </div>
+      </div>
+
+      <div class="test-card">
+        <div class="test-card-header">
+          <div class="test-card-name">🦵 Movilidad de Tobillo (LOW)</div>
+          <div class="test-card-range">8 – 15 cm</div>
+        </div>
+        <p style="font-size:0.8rem;color:var(--text-dim);margin-bottom:1rem;line-height:1.5;">Pie frente a pared, intenta tocarla con la rodilla sin levantar el talón.</p>
+        <div class="test-input-wrap">
+          <input class="form-input test-input" id="t-tobillo" type="number" placeholder="Ej: 11">
+          <span class="test-unit">cm</span>
+        </div>
+      </div>
+
+      <button class="full-btn" onclick="nextStep(2)">Continuar →</button>
+    </div>
+
+    <!-- STEP 2: OBJETIVO DETALLADO -->
+    <div class="step-screen" id="step-2">
+      <div class="step-tag">Paso 03 / 04</div>
+      <div class="step-title">Tu Objetivo</div>
+      <div class="step-desc">Diseñamos tu plan en base a tus respuestas. Sé honesto, nadie más lo verá.</div>
+
+      <div class="block-separator">// BLOQUE 01 — LO FÍSICO</div>
+
+      <div class="form-group">
+        <label class="form-label">Prioridad física número uno</label>
+        <div class="radio-group">
+          <div class="radio-option" onclick="selectRadio(this, 'prioridad')"><div class="radio-dot"></div><span class="radio-text">Ganar velocidad punta</span></div>
+          <div class="radio-option" onclick="selectRadio(this, 'prioridad')"><div class="radio-dot"></div><span class="radio-text">Mejorar la aceleración / arrancada</span></div>
+          <div class="radio-option" onclick="selectRadio(this, 'prioridad')"><div class="radio-dot"></div><span class="radio-text">Ganar masa muscular / fuerza</span></div>
+          <div class="radio-option" onclick="selectRadio(this, 'prioridad')"><div class="radio-dot"></div><span class="radio-text">Mejorar la resistencia para el minuto 90</span></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Molestias o lesiones recurrentes</label>
+        <input class="form-input" type="text" placeholder="Ej: Tirones en isquiotibiales, dolor de rodilla...">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Nivel de fuerza en gimnasio</label>
+        <div class="radio-group">
+          <div class="radio-option" onclick="selectRadio(this, 'gym')"><div class="radio-dot"></div><span class="radio-text">Principiante — Nunca o casi nunca voy</span></div>
+          <div class="radio-option" onclick="selectRadio(this, 'gym')"><div class="radio-dot"></div><span class="radio-text">Intermedio — Voy con regularidad</span></div>
+          <div class="radio-option" onclick="selectRadio(this, 'gym')"><div class="radio-dot"></div><span class="radio-text">Avanzado — Entreno fuerza en serio</span></div>
+        </div>
+      </div>
+
+      <div class="block-separator">// BLOQUE 02 — LO TÁCTICO</div>
+
+      <div class="form-group">
+        <label class="form-label">Tu rol principal en el equipo</label>
+        <input class="form-input" type="text" placeholder="Ej: Extremo regateador, mediocentro organizador...">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Faceta del juego donde quieres destacar</label>
+        <input class="form-input" type="text" placeholder="Ej: Ganar duelos 1vs1, mejorar el pase largo...">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Mayor debilidad táctica</label>
+        <input class="form-input" type="text" placeholder="Ej: Posicionamiento defensivo, presión...">
+      </div>
+
+      <div class="block-separator">// BLOQUE 03 — ESTILO DE VIDA</div>
+
+      <div class="form-group">
+        <label class="form-label">Horas de sueño diarias</label>
+        <div class="radio-group">
+          <div class="radio-option" onclick="selectRadio(this, 'sueño')"><div class="radio-dot"></div><span class="radio-text">Menos de 6h — Poco descanso</span></div>
+          <div class="radio-option" onclick="selectRadio(this, 'sueño')"><div class="radio-dot"></div><span class="radio-text">7–8h — Descanso óptimo</span></div>
+          <div class="radio-option" onclick="selectRadio(this, 'sueño')"><div class="radio-dot"></div><span class="radio-text">Más de 9h — Mucho descanso</span></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Nivel de estrés fuera del fútbol</label>
+        <div class="radio-group">
+          <div class="radio-option" onclick="selectRadio(this, 'estres')"><div class="radio-dot"></div><span class="radio-text">Estudiante/trabajador con mucho estrés</span></div>
+          <div class="radio-option" onclick="selectRadio(this, 'estres')"><div class="radio-dot"></div><span class="radio-text">Nivel medio de estrés</span></div>
+          <div class="radio-option" onclick="selectRadio(this, 'estres')"><div class="radio-dot"></div><span class="radio-text">Enfocado solo al fútbol</span></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Días extra de entrenamiento por semana (con la app)</label>
+        <div class="radio-group">
+          <div class="radio-option" onclick="selectRadio(this, 'dias-extra')"><div class="radio-dot"></div><span class="radio-text">2 días</span></div>
+          <div class="radio-option" onclick="selectRadio(this, 'dias-extra')"><div class="radio-dot"></div><span class="radio-text">3 días</span></div>
+          <div class="radio-option" onclick="selectRadio(this, 'dias-extra')"><div class="radio-dot"></div><span class="radio-text">4 días</span></div>
+          <div class="radio-option" onclick="selectRadio(this, 'dias-extra')"><div class="radio-dot"></div><span class="radio-text">5 días</span></div>
+        </div>
+      </div>
+
+      <div class="block-separator">// BLOQUE 04 — NUTRICIÓN</div>
+
+      <div class="form-group">
+        <label class="form-label">Objetivo con el peso</label>
+        <div class="radio-group">
+          <div class="radio-option" onclick="selectRadio(this, 'peso-obj')"><div class="radio-dot"></div><span class="radio-text">Bajar grasa — Estar más ligero y rápido</span></div>
+          <div class="radio-option" onclick="selectRadio(this, 'peso-obj')"><div class="radio-dot"></div><span class="radio-text">Recomposición — Mantener peso y ganar músculo</span></div>
+          <div class="radio-option" onclick="selectRadio(this, 'peso-obj')"><div class="radio-dot"></div><span class="radio-text">Volumen — Subir de peso y ganar masa</span></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Dieta o alergias específicas</label>
+        <input class="form-input" type="text" placeholder="Ej: Vegano, celíaco, sin restricciones...">
+      </div>
+
+      <button class="full-btn" onclick="finishOnboarding()">Generar mi Plan →</button>
+    </div>
+
+    <!-- STEP 3: GENERANDO PLAN -->
+    <div class="step-screen" id="step-3" style="text-align:center;padding:4rem 0;">
+      <div style="font-size:4rem;margin-bottom:2rem;animation:float 2s ease infinite;">⚙️</div>
+      <div class="step-tag" style="text-align:center;">PROCESANDO DATOS</div>
+      <div class="step-title" style="text-align:center;">Generando<br><span style="color:var(--red)">Tu Plan</span></div>
+      <p class="step-desc" style="text-align:center;">Analizando objetivos, datos biométricos y calendario de carga...</p>
+      <div id="loading-bar-bg" style="background:rgba(255,255,255,0.07);height:3px;margin:2rem 0;overflow:hidden;">
+        <div id="loading-bar" style="height:100%;background:var(--red);width:0%;transition:width 0.1s;box-shadow:0 0 10px var(--red);"></div>
+      </div>
+      <div id="loading-status" style="font-family:var(--font-title);font-size:0.7rem;color:var(--text-dim);letter-spacing:0.2em;">Iniciando...</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 5 — DASHBOARD
+══════════════════════════════════════ -->
+<div class="screen" id="screen-dashboard">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-text">ÉLITE<span>FC</span></div>
+      <div class="sidebar-logo-sub">Alto Rendimiento</div>
+    </div>
+    <div class="sidebar-player">
+      <div class="player-avatar" id="player-avatar">AM</div>
+      <div class="player-name" id="player-name-sidebar">Alex Moya</div>
+      <div class="player-pos" id="player-pos-sidebar">Mediocentro · 22 años · 75 kg · 180 cm</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="showPage('page-dashboard', this)">
+        <span class="nav-icon">◉</span> Cuadro de Mandos
+      </div>
+      <div class="nav-item" onclick="showPage('page-gym', this)">
+        <span class="nav-icon">💪</span> El Gimnasio
+      </div>
+      <div class="nav-item" onclick="showPage('page-nutrition', this)">
+        <span class="nav-icon">🥗</span> Alimentación
+      </div>
+      <div class="nav-item" onclick="showPage('page-match', this)">
+        <span class="nav-icon">⚽</span> Día de Partido
+      </div>
+      <div class="nav-item" onclick="showPage('page-tactical', this)">
+        <span class="nav-icon">🎯</span> Corner Táctico
+      </div>
+      <div class="nav-item" onclick="showPage('page-progress', this)">
+        <span class="nav-icon">📈</span> Progreso
+      </div>
+      <div class="nav-item" onclick="showPage('page-survey', this)">
+        <span class="nav-icon">📋</span> Encuesta Semanal
+      </div>
+    </nav>
+    <div class="sidebar-bottom">
+      <button class="logout-btn" onclick="showScreen('screen-landing')">⏻ Cerrar Sesión</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-greeting">Buenos días, <span id="greeting-name">Alex</span></div>
+        <div class="topbar-meta" id="player-meta-top">Mediocentro · CD Cieza · Temporada 2024/25</div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-date" id="today-date"></div>
+      </div>
+    </div>
+
+    <!-- ─── PAGE: DASHBOARD ─── -->
+    <div class="page-content active" id="page-dashboard">
+      <div class="dashboard-grid">
+        
+        <!-- Frase del día -->
+        <div class="card card-span3">
+          <div class="card-title">Frase del Día</div>
+          <div class="quote-text" id="daily-quote">"Los campeones no se hacen en el gimnasio. Se hacen de algo que llevan muy adentro: un deseo, un sueño, una visión."</div>
+          <div class="quote-author">— MUHAMMAD ALI</div>
+        </div>
+
+        <!-- Anillo de progreso -->
+        <div class="card card-span2">
+          <div class="card-title">Progreso del Día</div>
+          <div class="progress-ring-wrap">
+            <div class="ring-container">
+              <svg width="140" height="140" viewBox="0 0 140 140">
+                <circle class="ring-bg" cx="70" cy="70" r="60" fill="none" stroke-width="8"/>
+                <circle class="ring-fill" id="main-ring" cx="70" cy="70" r="60" fill="none" stroke-width="8"
+                  stroke-dasharray="377" stroke-dashoffset="377"/>
+              </svg>
+              <div class="ring-label">
+                <div class="ring-percent" id="ring-percent">0%</div>
+                <div class="ring-sub">COMPLETADO</div>
+              </div>
+            </div>
+            <div class="ring-tasks">
+              <div class="task-item" onclick="toggleTask(this)">
+                <div class="task-check">✓</div>
+                <span class="task-label">Sesión de Potencia</span>
+              </div>
+              <div class="task-item" onclick="toggleTask(this)">
+                <div class="task-check">✓</div>
+                <span class="task-label">Desayuno pre-entreno</span>
+              </div>
+              <div class="task-item" onclick="toggleTask(this)">
+                <div class="task-check">✓</div>
+                <span class="task-label">2L de agua</span>
+              </div>
+              <div class="task-item" onclick="toggleTask(this)">
+                <div class="task-check">✓</div>
+                <span class="task-label">Análisis táctico</span>
+              </div>
+              <div class="task-item" onclick="toggleTask(this)">
+                <div class="task-check">✓</div>
+                <span class="task-label">Recuperación activa</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wellness -->
+        <div class="card">
+          <div class="card-title">Estado de Hoy</div>
+          <div class="wellness-row" style="flex-direction:column;gap:1rem;">
+            <div class="wellness-item">
+              <div class="wellness-label">¿Cómo has dormido?</div>
+              <div class="stars-row" id="sleep-stars">
+                <button class="star-btn" onclick="rateSleep(1)">★</button>
+                <button class="star-btn" onclick="rateSleep(2)">★</button>
+                <button class="star-btn" onclick="rateSleep(3)">★</button>
+                <button class="star-btn" onclick="rateSleep(4)">★</button>
+                <button class="star-btn" onclick="rateSleep(5)">★</button>
+              </div>
+            </div>
+            <div class="wellness-item">
+              <div class="wellness-label">Estado físico / fatiga</div>
+              <div class="wellness-faces">
+                <button class="face-btn" onclick="selectFace(this, 'fatigue')">😴</button>
+                <button class="face-btn" onclick="selectFace(this, 'fatigue')">😑</button>
+                <button class="face-btn" onclick="selectFace(this, 'fatigue')">🙂</button>
+                <button class="face-btn" onclick="selectFace(this, 'fatigue')">😤</button>
+                <button class="face-btn" onclick="selectFace(this, 'fatigue')">🔥</button>
+              </div>
+            </div>
+          </div>
+          <div class="alert-box" id="fatigue-alert">
+            ⚡ <strong>Alta fatiga detectada.</strong> Hoy reducimos el volumen de pesas y priorizamos movilidad.
+          </div>
+        </div>
+
+        <!-- Tarjeta del día -->
+        <div class="card">
+          <div class="card-title">Hoy Toca</div>
+          <div class="day-card-highlight">
+            <div class="day-type">Sesión de <span>Potencia</span></div>
+            <div class="day-note">Fuerza explosiva + Análisis Táctico · Martes</div>
+          </div>
+          <div class="stat-row mt-1">
+            <div class="stat-line">
+              <div class="stat-header"><span class="stat-name">Intensidad planificada</span><span class="stat-val">85%</span></div>
+              <div class="stat-bar-bg"><div class="stat-bar-fill" style="--target-width:85%;"></div></div>
+            </div>
+            <div class="stat-line">
+              <div class="stat-header"><span class="stat-name">Volumen estimado</span><span class="stat-val">70%</span></div>
+              <div class="stat-bar-bg"><div class="stat-bar-fill" style="--target-width:70%;"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats baseline -->
+        <div class="card card-span2">
+          <div class="card-title">Marcas Iniciales</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div style="text-align:center;padding:1rem;background:rgba(255,0,51,0.05);border:1px solid rgba(255,0,51,0.1);">
+              <div style="font-family:var(--font-display);font-size:2.2rem;" id="stat-salto">—</div>
+              <div style="font-size:0.65rem;color:var(--text-dim);letter-spacing:0.15em;margin-top:0.2rem;">SALTO VERTICAL</div>
+            </div>
+            <div style="text-align:center;padding:1rem;background:rgba(255,0,51,0.05);border:1px solid rgba(255,0,51,0.1);">
+              <div style="font-family:var(--font-display);font-size:2.2rem;" id="stat-sprint">—</div>
+              <div style="font-size:0.65rem;color:var(--text-dim);letter-spacing:0.15em;margin-top:0.2rem;">SPRINT 30M</div>
+            </div>
+            <div style="text-align:center;padding:1rem;background:rgba(255,0,51,0.05);border:1px solid rgba(255,0,51,0.1);">
+              <div style="font-family:var(--font-display);font-size:2.2rem;" id="stat-yoyo">—</div>
+              <div style="font-size:0.65rem;color:var(--text-dim);letter-spacing:0.15em;margin-top:0.2rem;">YO-YO TEST</div>
+            </div>
+            <div style="text-align:center;padding:1rem;background:rgba(255,0,51,0.05);border:1px solid rgba(255,0,51,0.1);">
+              <div style="font-family:var(--font-display);font-size:2.2rem;" id="stat-tobillo">—</div>
+              <div style="font-size:0.65rem;color:var(--text-dim);letter-spacing:0.15em;margin-top:0.2rem;">TOBILLO LOW</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ─── PAGE: GYM ─── -->
+    <div class="page-content" id="page-gym">
+      <div class="section-header">
+        <div class="section-tag">Entrenamiento</div>
+        <div class="section-title">El <span style="color:var(--red)">Gimnasio</span></div>
+      </div>
+
+      <div class="timer-widget">
+        <div>
+          <div class="timer-label">CRONÓMETRO DE DESCANSO</div>
+          <div class="timer-display" id="timer-display">01:30</div>
+        </div>
+        <div class="timer-btns">
+          <button class="btn-timer" onclick="startTimer()">▶ Play</button>
+          <button class="btn-timer secondary" onclick="resetTimer()">↺ Reset</button>
+          <select class="form-select" id="timer-select" onchange="setTimerVal(this.value)" style="max-width:140px;padding:0.5rem;font-size:0.8rem;">
+            <option value="60">60 seg</option>
+            <option value="90" selected>90 seg</option>
+            <option value="120">120 seg</option>
+            <option value="180">180 seg</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="font-family:var(--font-title);font-size:0.65rem;letter-spacing:0.3em;color:var(--red);margin-bottom:1.2rem;">SESIÓN: POTENCIA EXPLOSIVA — MARTES</div>
+
+      <div class="exercise-list">
+        <div class="exercise-card" onclick="completeExercise(this)">
+          <div class="exercise-num">01</div>
+          <div class="exercise-info">
+            <div class="exercise-name">Sentadilla con Salto (Jump Squat)</div>
+            <div class="exercise-sets"><span>4 series × 6 reps</span> · Descanso 90s · Peso corporal</div>
+          </div>
+          <div class="exercise-actions"><button class="btn-small" onclick="event.stopPropagation();completeExercise(this.closest('.exercise-card'))">✓ Done</button></div>
+        </div>
+        <div class="exercise-card" onclick="completeExercise(this)">
+          <div class="exercise-num">02</div>
+          <div class="exercise-info">
+            <div class="exercise-name">Peso Muerto Rumano</div>
+            <div class="exercise-sets"><span>4 series × 8 reps</span> · Descanso 120s · 60–70% RM</div>
+          </div>
+          <div class="exercise-actions"><button class="btn-small" onclick="event.stopPropagation();completeExercise(this.closest('.exercise-card'))">✓ Done</button></div>
+        </div>
+        <div class="exercise-card" onclick="completeExercise(this)">
+          <div class="exercise-num">03</div>
+          <div class="exercise-info">
+            <div class="exercise-name">Hip Thrust con Barra</div>
+            <div class="exercise-sets"><span>4 series × 10 reps</span> · Descanso 90s · 70% RM</div>
+          </div>
+          <div class="exercise-actions"><button class="btn-small" onclick="event.stopPropagation();completeExercise(this.closest('.exercise-card'))">✓ Done</button></div>
+        </div>
+        <div class="exercise-card" onclick="completeExercise(this)">
+          <div class="exercise-num">04</div>
+          <div class="exercise-info">
+            <div class="exercise-name">Sprint de Trineo (Sled Push)</div>
+            <div class="exercise-sets"><span>6 series × 20m</span> · Descanso 3min · Carga moderada</div>
+          </div>
+          <div class="exercise-actions"><button class="btn-small" onclick="event.stopPropagation();completeExercise(this.closest('.exercise-card'))">✓ Done</button></div>
+        </div>
+        <div class="exercise-card" onclick="completeExercise(this)">
+          <div class="exercise-num">05</div>
+          <div class="exercise-info">
+            <div class="exercise-name">Nordic Hamstring Curl</div>
+            <div class="exercise-sets"><span>3 series × 8 reps</span> · Descanso 90s · Prevención isquios</div>
+          </div>
+          <div class="exercise-actions"><button class="btn-small" onclick="event.stopPropagation();completeExercise(this.closest('.exercise-card'))">✓ Done</button></div>
+        </div>
+        <div class="exercise-card" onclick="completeExercise(this)">
+          <div class="exercise-num">06</div>
+          <div class="exercise-info">
+            <div class="exercise-name">Movilidad de Tobillo + Estiramiento</div>
+            <div class="exercise-sets"><span>10 min</span> · Finalización · Foam roller</div>
+          </div>
+          <div class="exercise-actions"><button class="btn-small" onclick="event.stopPropagation();completeExercise(this.closest('.exercise-card'))">✓ Done</button></div>
+        </div>
+      </div>
+      <button class="full-btn" onclick="notify('¡Sesión completada! Datos enviados al sistema.')">Marcar Sesión Completa ✓</button>
+    </div>
+
+    <!-- ─── PAGE: NUTRITION ─── -->
+    <div class="page-content" id="page-nutrition">
+      <div class="section-header">
+        <div class="section-tag">Nutrición</div>
+        <div class="section-title">La <span style="color:var(--red)">Gasolina</span></div>
+      </div>
+
+      <div class="card mb-2" style="clip-path:none;border-radius:0;">
+        <div class="card-title">Macros del Día — Día de Entrenamiento</div>
+        <div class="macro-grid">
+          <div class="macro-card" style="--accent:#ff0033;">
+            <div class="macro-val">2840<span class="macro-unit">kcal</span></div>
+            <div class="macro-name">Calorías Totales</div>
+          </div>
+          <div class="macro-card" style="--accent:#00aaff;">
+            <div class="macro-val">195<span class="macro-unit">g</span></div>
+            <div class="macro-name">Proteína</div>
+          </div>
+          <div class="macro-card" style="--accent:#ffaa00;">
+            <div class="macro-val">320<span class="macro-unit">g</span></div>
+            <div class="macro-name">Carbohidratos</div>
+          </div>
+        </div>
+        <div style="font-family:var(--font-title);font-size:0.65rem;letter-spacing:0.2em;color:var(--text-dim);margin-bottom:0.5rem;">HIDRATACIÓN DIARIA (8 vasos)</div>
+        <div class="water-tracker" id="water-tracker">
+          <span class="water-cup" onclick="fillWater(0)">💧</span>
+          <span class="water-cup" onclick="fillWater(1)">💧</span>
+          <span class="water-cup" onclick="fillWater(2)">💧</span>
+          <span class="water-cup" onclick="fillWater(3)">💧</span>
+          <span class="water-cup" onclick="fillWater(4)">💧</span>
+          <span class="water-cup" onclick="fillWater(5)">💧</span>
+          <span class="water-cup" onclick="fillWater(6)">💧</span>
+          <span class="water-cup" onclick="fillWater(7)">💧</span>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card" style="clip-path:none;">
+          <div class="card-title">Timing Nutricional</div>
+          <div class="timing-card">
+            <div class="timing-phase">PRE-ENTRENAMIENTO · 2–3h antes</div>
+            <div class="timing-desc">Carbohidratos de digestión media (arroz, avena, pasta). Proteína moderada. Evitar grasas y fibra en exceso.</div>
+          </div>
+          <div class="timing-card">
+            <div class="timing-phase">INTRA-ENTRENAMIENTO · Si supera 60min</div>
+            <div class="timing-desc">Geles o bebida isotónica con carbohidratos de rápida absorción. 30–60g CH/hora.</div>
+          </div>
+          <div class="timing-card">
+            <div class="timing-phase">POST-ENTRENAMIENTO · 30–60min después</div>
+            <div class="timing-desc">Proteína (40g) + Carbohidratos rápidos (80g). Prioridad: recuperación de glucógeno. Batido de proteína + plátano.</div>
+          </div>
+        </div>
+        <div class="card" style="clip-path:none;">
+          <div class="card-title">Suplementación Recomendada</div>
+          <div class="supplement-item">
+            <span class="supplement-name">🔵 Creatina Monohidrato</span>
+            <span class="supplement-dose">5g / día</span>
+          </div>
+          <div class="supplement-item">
+            <span class="supplement-name">⚡ Cafeína</span>
+            <span class="supplement-dose">3–6mg/kg · Pre-entreno</span>
+          </div>
+          <div class="supplement-item">
+            <span class="supplement-name">💊 Vitamina D3</span>
+            <span class="supplement-dose">2000 UI / día</span>
+          </div>
+          <div class="supplement-item">
+            <span class="supplement-name">🌿 Omega-3 (DHA/EPA)</span>
+            <span class="supplement-dose">2–3g / día</span>
+          </div>
+          <div class="supplement-item">
+            <span class="supplement-name">🥛 Proteína de Suero</span>
+            <span class="supplement-dose">Post-entreno</span>
+          </div>
+          <p style="font-size:0.7rem;color:var(--text-faint);margin-top:1rem;line-height:1.4;">⚠️ Consulta con un profesional de la salud antes de iniciar cualquier suplementación.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── PAGE: MATCH ─── -->
+    <div class="page-content" id="page-match">
+      <div class="section-header">
+        <div class="section-tag">Planificación</div>
+        <div class="section-title">Día de <span style="color:var(--red)">Partido</span></div>
+      </div>
+      <div class="grid-2">
+        <div class="card" style="clip-path:none;">
+          <div class="card-title">Calendario — Abril 2025</div>
+          <div class="calendar-grid">
+            <div class="cal-header">L</div><div class="cal-header">M</div><div class="cal-header">X</div>
+            <div class="cal-header">J</div><div class="cal-header">V</div><div class="cal-header">S</div><div class="cal-header">D</div>
+            <div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day training">1</div>
+            <div class="cal-day">2</div><div class="cal-day training">3</div><div class="cal-day">4</div>
+            <div class="cal-day match">5</div>
+            <div class="cal-day">6</div><div class="cal-day training">7</div><div class="cal-day">8</div>
+            <div class="cal-day training">9</div><div class="cal-day">10</div><div class="cal-day">11</div>
+            <div class="cal-day match today">12</div>
+            <div class="cal-day">13</div><div class="cal-day training">14</div><div class="cal-day">15</div>
+            <div class="cal-day training">16</div><div class="cal-day">17</div><div class="cal-day">18</div>
+            <div class="cal-day match">19</div>
+            <div class="cal-day">20</div><div class="cal-day training">21</div><div class="cal-day">22</div>
+            <div class="cal-day training">23</div><div class="cal-day">24</div><div class="cal-day">25</div>
+            <div class="cal-day match">26</div>
+            <div class="cal-day">27</div><div class="cal-day training">28</div><div class="cal-day">29</div>
+            <div class="cal-day training">30</div>
+          </div>
+          <div style="display:flex;gap:1.5rem;margin-top:1rem;font-size:0.75rem;color:var(--text-dim);">
+            <span><span style="color:var(--red);font-weight:700;">■</span> Partido</span>
+            <span><span style="color:rgba(255,255,255,0.4);font-weight:700;">■</span> Entrenamiento equipo</span>
+            <span><span style="border:1px solid var(--red);display:inline-block;width:10px;height:10px;vertical-align:middle;"></span> Hoy</span>
+          </div>
+        </div>
+        <div class="card" style="clip-path:none;">
+          <div class="card-title">Protocolo Pre-Partido</div>
+          <div class="match-prep-timeline">
+            <div class="timeline-item">
+              <div class="timeline-day">−5 DÍAS</div>
+              <div class="timeline-content"><strong>Carga Reducida</strong>Descarga de volumen en gimnasio. Mantener intensidad explosiva breve. Hidratación elevada.</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-day">−3 DÍAS</div>
+              <div class="timeline-content"><strong>Activación Técnica</strong>Solo trabajo técnico con el equipo. Nada de pesas. Inicio de carga de carbohidratos.</div>
+            </div>
+            <div class="timeline-item active">
+              <div class="timeline-day">−1 DÍA</div>
+              <div class="timeline-content"><strong>Día de Activación</strong>Activación neuromotora (10–15 min). Estiramientos. Comida rica en CH. Dormir 8h mínimo.</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-day">PARTIDO 🔴</div>
+              <div class="timeline-content"><strong>Día del Match</strong>Comida 3h antes (arroz/pasta + pollo). Cafeína 60min antes. Calentamiento completo 20min.</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-day">+1 DÍA</div>
+              <div class="timeline-content"><strong>Recuperación Activa</strong>Baño frío, masaje, foam roller. Proteína + CH inmediato. Descanso completo de gym.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── PAGE: TACTICAL ─── -->
+    <div class="page-content" id="page-tactical">
+      <div class="section-header">
+        <div class="section-tag">Contenido</div>
+        <div class="section-title">El <span style="color:var(--red)">Corner</span> Táctico</div>
+      </div>
+      <div style="background:rgba(255,0,51,0.05);border:1px solid rgba(255,0,51,0.15);padding:1rem 1.5rem;margin-bottom:2rem;font-size:0.85rem;color:var(--text-dim);">
+        📍 Contenido personalizado para tu posición: <strong style="color:#fff;" id="content-position">Mediocentro</strong>
+      </div>
+      <div class="content-feed" id="content-feed">
+        <div class="content-card">
+          <div class="content-thumb">🏆</div>
+          <div class="content-body">
+            <div class="content-tag">Táctica · Mediocentro</div>
+            <div class="content-title">Cómo dominar el tercer hombre — Rodri</div>
+            <div class="content-desc">Análisis de cómo Rodri se asocia con los laterales para salir jugado desde el campo propio.</div>
+          </div>
+        </div>
+        <div class="content-card">
+          <div class="content-thumb">⚡</div>
+          <div class="content-body">
+            <div class="content-tag">Táctica · Presión</div>
+            <div class="content-title">Cuándo saltar a presionar y cuándo esperar</div>
+            <div class="content-desc">Toma de decisiones en la presión. La regla del número de pases y la orientación del rival.</div>
+          </div>
+        </div>
+        <div class="content-card">
+          <div class="content-thumb">🧠</div>
+          <div class="content-body">
+            <div class="content-tag">Mental · Mentalidad</div>
+            <div class="content-title">La mentalidad de los mejores centrocampistas</div>
+            <div class="content-desc">Xavi, Pirlo, Busquets. Qué tienen en común más allá del talento técnico.</div>
+          </div>
+        </div>
+        <div class="content-card">
+          <div class="content-thumb">📊</div>
+          <div class="content-body">
+            <div class="content-tag">Análisis · Posicionamiento</div>
+            <div class="content-title">Los 3 posicionamientos clave del MCD moderno</div>
+            <div class="content-desc">Fase de construcción, transición y pressing. Los triángulos que debes dominar.</div>
+          </div>
+        </div>
+        <div class="content-card">
+          <div class="content-thumb">💪</div>
+          <div class="content-body">
+            <div class="content-tag">Motivacional · Highlights</div>
+            <div class="content-title">Los mejores tackles y recuperaciones de Casemiro</div>
+            <div class="content-desc">Intensidad defensiva, anticipación y agresividad en el duelo. Aprende del maestro.</div>
+          </div>
+        </div>
+        <div class="content-card">
+          <div class="content-thumb">🎯</div>
+          <div class="content-body">
+            <div class="content-tag">Técnica · Pase</div>
+            <div class="content-title">El pase entre líneas — Cómo y cuándo darlo</div>
+            <div class="content-desc">El pase más difícil del fútbol moderno. Timing, orientación y la mirada previa.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── PAGE: PROGRESS ─── -->
+    <div class="page-content" id="page-progress">
+      <div class="section-header">
+        <div class="section-tag">Evolución</div>
+        <div class="section-title">Progress <span style="color:var(--red)">Lab</span></div>
+      </div>
+
+      <div class="progress-stats-grid">
+        <div class="prog-stat">
+          <div class="prog-stat-val"><span class="positive">+4cm</span></div>
+          <div class="prog-stat-name">Salto Vertical</div>
+        </div>
+        <div class="prog-stat">
+          <div class="prog-stat-val"><span class="positive">−0.12s</span></div>
+          <div class="prog-stat-name">Sprint 30m</div>
+        </div>
+        <div class="prog-stat">
+          <div class="prog-stat-val"><span class="positive">+280m</span></div>
+          <div class="prog-stat-name">Yo-Yo Test</div>
+        </div>
+        <div class="prog-stat">
+          <div class="prog-stat-val"><span class="positive">+2cm</span></div>
+          <div class="prog-stat-name">Movilidad Tobillo</div>
+        </div>
+      </div>
+
+      <div class="grid-2 mb-2">
+        <div class="card" style="clip-path:none;">
+          <div class="card-title">Salto Vertical — Evolución</div>
+          <div class="chart-container">
+            <div class="chart-bars">
+              <div class="chart-bar-wrap">
+                <div class="chart-val">42cm</div>
+                <div class="chart-bar-bg"><div class="chart-bar-fill" style="height:70%;"></div></div>
+                <div class="chart-month">ENE</div>
+              </div>
+              <div class="chart-bar-wrap">
+                <div class="chart-val">43cm</div>
+                <div class="chart-bar-bg"><div class="chart-bar-fill" style="height:72%;"></div></div>
+                <div class="chart-month">FEB</div>
+              </div>
+              <div class="chart-bar-wrap">
+                <div class="chart-val">45cm</div>
+                <div class="chart-bar-bg"><div class="chart-bar-fill" style="height:75%;"></div></div>
+                <div class="chart-month">MAR</div>
+              </div>
+              <div class="chart-bar-wrap">
+                <div class="chart-val">46cm</div>
+                <div class="chart-bar-bg"><div class="chart-bar-fill" style="height:77%;"></div></div>
+                <div class="chart-month">ABR</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="clip-path:none;">
+          <div class="card-title">Sprint 30m — Evolución</div>
+          <div class="chart-container">
+            <div class="chart-bars">
+              <div class="chart-bar-wrap">
+                <div class="chart-val">4.24s</div>
+                <div class="chart-bar-bg"><div class="chart-bar-fill" style="height:60%;"></div></div>
+                <div class="chart-month">ENE</div>
+              </div>
+              <div class="chart-bar-wrap">
+                <div class="chart-val">4.18s</div>
+                <div class="chart-bar-bg"><div class="chart-bar-fill" style="height:65%;"></div></div>
+                <div class="chart-month">FEB</div>
+              </div>
+              <div class="chart-bar-wrap">
+                <div class="chart-val">4.14s</div>
+                <div class="chart-bar-bg"><div class="chart-bar-fill" style="height:70%;"></div></div>
+                <div class="chart-month">MAR</div>
+              </div>
+              <div class="chart-bar-wrap">
+                <div class="chart-val">4.12s</div>
+                <div class="chart-bar-bg"><div class="chart-bar-fill" style="height:72%;"></div></div>
+                <div class="chart-month">ABR</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-2" style="clip-path:none;">
+        <div class="card-title">Logros Desbloqueados</div>
+        <div class="badge-grid">
+          <div class="badge"><div class="badge-icon">🔥</div><div class="badge-info"><div class="badge-name">Semana Perfecta</div><div class="badge-desc">7 días sin fallar</div></div></div>
+          <div class="badge"><div class="badge-icon">⚡</div><div class="badge-info"><div class="badge-name">Rayo</div><div class="badge-desc">Sprint bajado 0.1s</div></div></div>
+          <div class="badge"><div class="badge-icon">🦁</div><div class="badge-info"><div class="badge-name">Constancia Élite</div><div class="badge-desc">30 días seguidos</div></div></div>
+          <div class="badge locked"><div class="badge-icon">👑</div><div class="badge-info"><div class="badge-name">Temporada Completa</div><div class="badge-desc">Requiere 90 días</div></div></div>
+          <div class="badge locked"><div class="badge-icon">🏆</div><div class="badge-info"><div class="badge-name">Campeón de Pretemporada</div><div class="badge-desc">Superar todos los tests</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── PAGE: SURVEY ─── -->
+    <div class="page-content" id="page-survey">
+      <div class="section-header">
+        <div class="section-tag">Seguimiento</div>
+        <div class="section-title">Encuesta <span style="color:var(--red)">Semanal</span></div>
+      </div>
+
+      <div class="survey-card">
+        <div class="survey-q">¿Cómo valorarías tu rendimiento global esta semana? (1–10)</div>
+        <div class="slider-wrap">
+          <div class="slider-val" id="perf-val">5</div>
+          <input type="range" class="custom-slider" min="1" max="10" value="5" oninput="document.getElementById('perf-val').textContent=this.value">
+          <div class="slider-labels"><span>Malo</span><span>Regular</span><span>Excelente</span></div>
+        </div>
+      </div>
+
+      <div class="survey-card">
+        <div class="survey-q">¿Cuántas sesiones de la app has completado esta semana?</div>
+        <div class="radio-group">
+          <div class="radio-option" onclick="selectRadio(this, 's1')"><div class="radio-dot"></div><span class="radio-text">0 — No he podido</span></div>
+          <div class="radio-option" onclick="selectRadio(this, 's1')"><div class="radio-dot"></div><span class="radio-text">1–2 sesiones</span></div>
+          <div class="radio-option" onclick="selectRadio(this, 's1')"><div class="radio-dot"></div><span class="radio-text">3–4 sesiones</span></div>
+          <div class="radio-option" onclick="selectRadio(this, 's1')"><div class="radio-dot"></div><span class="radio-text">5+ sesiones — Semana perfecta 🔥</span></div>
+        </div>
+      </div>
+
+      <div class="survey-card">
+        <div class="survey-q">Nivel de fatiga acumulada de la semana (1 = fresco, 10 = agotado)</div>
+        <div class="slider-wrap">
+          <div class="slider-val" id="fatigue-val">5</div>
+          <input type="range" class="custom-slider" min="1" max="10" value="5" oninput="document.getElementById('fatigue-val').textContent=this.value">
+          <div class="slider-labels"><span>Fresco</span><span>Normal</span><span>Agotado</span></div>
+        </div>
+      </div>
+
+      <div class="survey-card">
+        <div class="survey-q">¿Notaste alguna mejora física o técnica esta semana?</div>
+        <div class="form-group">
+          <textarea class="form-input" rows="3" placeholder="Cuéntanos qué has notado de diferente..." style="resize:vertical;"></textarea>
+        </div>
+      </div>
+
+      <div class="survey-card">
+        <div class="survey-q">Re-test mensual — ¿Han pasado 30 días?</div>
+        <div class="radio-group">
+          <div class="radio-option" onclick="selectRadio(this, 'retest')"><div class="radio-dot"></div><span class="radio-text">Sí, quiero registrar nuevos tests</span></div>
+          <div class="radio-option" onclick="selectRadio(this, 'retest')"><div class="radio-dot"></div><span class="radio-text">No, aún no han pasado 30 días</span></div>
+        </div>
+      </div>
+
+      <button class="full-btn" onclick="notify('✅ Encuesta enviada. ¡Gracias! Tu plan se actualiza automáticamente.')">Enviar Encuesta →</button>
+    </div>
+
+  </div><!-- end main-content -->
+
+  <button class="sidebar-toggle" id="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════ -->
+<script>
+  // ─── STATE ───
+  const APP = {
+    users: { 'alexmoya': '12345678agm' },
+    currentUser: null,
+    profile: {},
+    tests: {},
+    objectives: {},
+    tasks: 0,
+    totalTasks: 5,
+    timerInterval: null,
+    timerSeconds: 90,
+    timerRunning: false,
+    waterLevel: 0,
+  };
+
+  // ─── DATE ───
+  function initDate() {
+    const d = new Date();
+    const days = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+    const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    document.getElementById('today-date').innerHTML = `${days[d.getDay()]}<br>${d.getDate()} de ${months[d.getMonth()]} ${d.getFullYear()}`;
+  }
+
+  // ─── SCREENS ───
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const s = document.getElementById(id);
+    if(s) s.classList.add('active');
+    window.scrollTo(0,0);
+  }
+
+  // ─── REGISTER ───
+  function doRegister() {
+    const user = document.getElementById('reg-user').value.trim();
+    const pass = document.getElementById('reg-pass').value.trim();
+    const code = document.getElementById('reg-code').value.trim();
+    const err = document.getElementById('reg-error');
+    if(!user || !pass || pass.length < 6 || code !== 'cdcieza') {
+      err.style.display = 'block';
+      return;
+    }
+    err.style.display = 'none';
+    APP.users[user] = pass;
+    APP.currentUser = user;
+    notify('✅ Cuenta creada. Bienvenido al programa.');
+    setTimeout(() => showScreen('screen-onboarding'), 800);
+  }
+
+  // ─── LOGIN ───
+  function doLogin() {
+    const user = document.getElementById('login-user').value.trim();
+    const pass = document.getElementById('login-pass').value.trim();
+    const err = document.getElementById('login-error');
+    if(APP.users[user] && APP.users[user] === pass) {
+      err.style.display = 'none';
+      APP.currentUser = user;
+      // If already has profile, go to dashboard
+      if(APP.profile.nombre) {
+        loadDashboard();
+        showScreen('screen-dashboard');
+      } else {
+        showScreen('screen-onboarding');
+      }
+    } else {
+      err.style.display = 'block';
+    }
+  }
+
+  // ─── ONBOARDING ───
+  let currentStep = 0;
+  function nextStep(step) {
+    document.getElementById('step-' + currentStep).classList.remove('active');
+    document.getElementById('dot-' + currentStep).classList.remove('active');
+    document.getElementById('dot-' + currentStep).classList.add('done');
+    currentStep = step;
+    document.getElementById('step-' + step).classList.add('active');
+    document.getElementById('dot-' + step).classList.add('active');
+    window.scrollTo(0, 0);
+    if(step === 1) {
+      APP.profile.nombre = document.getElementById('p-nombre').value || 'Jugador';
+      APP.profile.apellidos = document.getElementById('p-apellidos').value || '';
+      APP.profile.edad = document.getElementById('p-edad').value || '—';
+      APP.profile.posicion = document.getElementById('p-posicion').value || 'Mediocentro';
+      APP.profile.peso = document.getElementById('p-peso').value || '—';
+      APP.profile.altura = document.getElementById('p-altura').value || '—';
+      APP.profile.equipo = document.getElementById('p-equipo').value || '—';
+    }
+    if(step === 2) {
+      APP.tests.salto = document.getElementById('t-salto').value || '—';
+      APP.tests.sprint = document.getElementById('t-sprint').value || '—';
+      APP.tests.yoyo = document.getElementById('t-yoyo').value || '—';
+      APP.tests.tobillo = document.getElementById('t-tobillo').value || '—';
+    }
+  }
+
+  function finishOnboarding() {
+    nextStep(3);
+    startLoadingAnim();
+  }
+
+  function startLoadingAnim() {
+    const bar = document.getElementById('loading-bar');
+    const status = document.getElementById('loading-status');
+    const steps = [
+      [0, 'Analizando datos biométricos...'],
+      [20, 'Calculando cargas semanales...'],
+      [45, 'Generando plan personalizado...'],
+      [65, 'Configurando nutrición...'],
+      [80, 'Preparando contenido táctico...'],
+      [95, 'Finalizando...'],
+      [100, '¡Plan listo! Redirigiendo...'],
+    ];
+    let i = 0;
+    const interval = setInterval(() => {
+      if(i < steps.length) {
+        bar.style.width = steps[i][0] + '%';
+        status.textContent = steps[i][1];
+        i++;
+      } else {
+        clearInterval(interval);
+        setTimeout(() => {
+          loadDashboard();
+          showScreen('screen-dashboard');
+        }, 600);
+      }
+    }, 500);
+  }
+
+  function loadDashboard() {
+    const n = APP.profile.nombre || 'Jugador';
+    const a = APP.profile.apellidos || '';
+    const initials = (n[0] || 'E') + (a[0] || 'F');
+    document.getElementById('greeting-name').textContent = n;
+    document.getElementById('player-name-sidebar').textContent = n + ' ' + a;
+    document.getElementById('player-pos-sidebar').textContent =
+      (APP.profile.posicion || '—') + ' · ' + (APP.profile.edad || '—') + ' años · ' +
+      (APP.profile.peso || '—') + 'kg · ' + (APP.profile.altura || '—') + 'cm';
+    document.getElementById('player-meta-top').textContent =
+      (APP.profile.posicion || '—') + ' · ' + (APP.profile.equipo || '—') + ' · Temporada 2024/25';
+    document.getElementById('player-avatar').textContent = initials.toUpperCase();
+    document.getElementById('content-position').textContent = APP.profile.posicion || 'Mediocentro';
+    // Tests
+    const t = APP.tests;
+    document.getElementById('stat-salto').textContent = t.salto ? t.salto + 'cm' : '—';
+    document.getElementById('stat-sprint').textContent = t.sprint ? t.sprint + 's' : '—';
+    document.getElementById('stat-yoyo').textContent = t.yoyo ? t.yoyo + 'm' : '—';
+    document.getElementById('stat-tobillo').textContent = t.tobillo ? t.tobillo + 'cm' : '—';
+    initDate();
+  }
+
+  // ─── PAGES ───
+  function showPage(id, navItem) {
+    document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    navItem.classList.add('active');
+    // Close sidebar on mobile
+    document.getElementById('sidebar').classList.remove('open');
+    window.scrollTo(0, 0);
+  }
+
+  // ─── TOGGLE DAY ───
+  function toggleDay(btn) {
+    btn.classList.toggle('selected');
+  }
+
+  // ─── RADIO SELECT ───
+  function selectRadio(el, group) {
+    const parent = el.closest('.radio-group') || el.parentElement;
+    parent.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  // ─── TASKS ───
+  function toggleTask(item) {
+    item.classList.toggle('done');
+    updateRing();
+  }
+
+  function updateRing() {
+    const done = document.querySelectorAll('.task-item.done').length;
+    const total = document.querySelectorAll('.task-item').length;
+    const pct = Math.round((done / total) * 100);
+    const circumference = 2 * Math.PI * 60;
+    const offset = circumference - (pct / 100) * circumference;
+    document.getElementById('main-ring').style.strokeDashoffset = offset;
+    document.getElementById('ring-percent').textContent = pct + '%';
+  }
+
+  // ─── SLEEP/FATIGUE ───
+  function rateSleep(n) {
+    const stars = document.querySelectorAll('#sleep-stars .star-btn');
+    stars.forEach((s, i) => s.classList.toggle('lit', i < n));
+  }
+
+  function selectFace(btn, group) {
+    const container = btn.parentElement;
+    container.querySelectorAll('.face-btn').forEach(f => f.classList.remove('selected'));
+    btn.classList.add('selected');
+    // Check if it's the first face (exhausted)
+    const idx = Array.from(container.querySelectorAll('.face-btn')).indexOf(btn);
+    const alert = document.getElementById('fatigue-alert');
+    if(alert) alert.style.display = idx === 0 ? 'block' : 'none';
+  }
+
+  // ─── EXERCISE COMPLETE ───
+  function completeExercise(card) {
+    card.classList.toggle('completed');
+    const btn = card.querySelector('.btn-small');
+    if(card.classList.contains('completed')) {
+      btn.textContent = '✓ Hecho';
+      btn.classList.add('done');
+      notify('Serie completada 🔥 — ¡Sigue así!');
+    } else {
+      btn.textContent = '✓ Done';
+      btn.classList.remove('done');
+    }
+  }
+
+  // ─── TIMER ───
+  let timerVal = 90;
+  let timerRemaining = 90;
+
+  function setTimerVal(val) {
+    timerVal = parseInt(val);
+    timerRemaining = timerVal;
+    updateTimerDisplay();
+    if(APP.timerRunning) { clearInterval(APP.timerInterval); APP.timerRunning = false; }
+  }
+
+  function updateTimerDisplay() {
+    const m = Math.floor(timerRemaining / 60).toString().padStart(2,'0');
+    const s = (timerRemaining % 60).toString().padStart(2,'0');
+    document.getElementById('timer-display').textContent = m + ':' + s;
+  }
+
+  function startTimer() {
+    if(APP.timerRunning) return;
+    APP.timerRunning = true;
+    APP.timerInterval = setInterval(() => {
+      timerRemaining--;
+      updateTimerDisplay();
+      if(timerRemaining <= 0) {
+        clearInterval(APP.timerInterval);
+        APP.timerRunning = false;
+        timerRemaining = timerVal;
+        notify('⏱ ¡Tiempo de descanso terminado! A por la siguiente serie.');
+        updateTimerDisplay();
+      }
+    }, 1000);
+  }
+
+  function resetTimer() {
+    clearInterval(APP.timerInterval);
+    APP.timerRunning = false;
+    timerRemaining = timerVal;
+    updateTimerDisplay();
+  }
+
+  // ─── WATER ───
+  function fillWater(idx) {
+    const cups = document.querySelectorAll('.water-cup');
+    cups.forEach((c, i) => c.classList.toggle('filled', i <= idx));
+    APP.waterLevel = idx + 1;
+    if(idx === 7) notify('💧 ¡Hidratación completa! Excelente rendimiento garantizado.');
+  }
+
+  // ─── NOTIFICATION ───
+  function notify(msg) {
+    const el = document.getElementById('notification');
+    document.getElementById('notif-msg').textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 3500);
+  }
+
+  // ─── QUOTES ───
+  const quotes = [
+    { text: '"Los campeones no se hacen en el gimnasio. Se hacen de algo que llevan muy adentro."', author: '— MUHAMMAD ALI' },
+    { text: '"El éxito es la suma de pequeños esfuerzos repetidos día tras día."', author: '— ROBERT COLLIER' },
+    { text: '"El dolor que sientes hoy será la fuerza que sentirás mañana."', author: '— ANÓNIMO' },
+    { text: '"No cuentes los días. Haz que los días cuenten."', author: '— MUHAMMAD ALI' },
+    { text: '"Lo que te diferencia de los demás es lo que haces cuando nadie te ve."', author: '— PROGRAMA ÉLITE FC' },
+  ];
+  function rotateQuote() {
+    const q = quotes[Math.floor(Math.random() * quotes.length)];
+    document.getElementById('daily-quote').textContent = q.text;
+  }
+
+  // ─── INIT ───
+  initDate();
+  rotateQuote();
+  updateTimerDisplay();
+</script>
+</body>
+</html>
