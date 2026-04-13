@@ -1,0 +1,2375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ELITE FC — Programa de Alto Rendimiento</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080808;
+  --bg2: #0f0f0f;
+  --bg3: #141414;
+  --bg4: #1a1a1a;
+  --red: #ff1a1a;
+  --red-glow: rgba(255,26,26,0.4);
+  --red-dim: rgba(255,26,26,0.15);
+  --red2: #ff4444;
+  --text: #f0f0f0;
+  --text-dim: #888;
+  --text-muted: #555;
+  --border: rgba(255,26,26,0.25);
+  --radius: 10px;
+  --shadow-red: 0 0 20px rgba(255,26,26,0.3), 0 0 60px rgba(255,26,26,0.1);
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.6);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;overflow-x:hidden;}
+.screen{display:none;min-height:100vh;animation:fadeIn 0.4s ease;}
+.screen.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 var(--red-glow)}50%{box-shadow:0 0 20px 4px var(--red-glow)}}
+@keyframes flicker{0%,95%,100%{opacity:1}96%{opacity:0.8}97%{opacity:1}98%{opacity:0.85}}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes streak{0%{background-position:0%}100%{background-position:200%}}
+
+/* LANDING */
+#screen-landing{
+  background:#000;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;padding:40px 20px;
+  position:relative;overflow:hidden;
+}
+.landing-bg{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 0%, rgba(255,26,26,0.15) 0%, transparent 60%),
+             radial-gradient(ellipse at 0% 100%, rgba(255,26,26,0.08) 0%, transparent 50%);
+  pointer-events:none;
+}
+.landing-grid{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,26,26,0.04) 1px, transparent 1px),
+                   linear-gradient(90deg, rgba(255,26,26,0.04) 1px, transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;
+}
+.landing-logo{
+  font-family:'Bebas Neue',cursive;
+  font-size:clamp(52px,12vw,96px);
+  color:#fff;
+  text-shadow:0 0 30px var(--red), 0 0 60px rgba(255,26,26,0.5);
+  letter-spacing:8px;
+  animation:flicker 8s infinite;
+  text-align:center;
+}
+.landing-sub{
+  font-family:'Orbitron',monospace;
+  font-size:clamp(9px,2vw,13px);
+  color:var(--red);
+  letter-spacing:6px;
+  text-transform:uppercase;
+  margin-top:8px;
+  text-align:center;
+}
+.landing-tagline{
+  color:var(--text-dim);
+  font-size:15px;
+  letter-spacing:2px;
+  margin:28px 0 48px;
+  text-align:center;
+}
+.landing-btns{display:flex;flex-direction:column;gap:16px;width:100%;max-width:320px;}
+.btn-primary{
+  background:transparent;
+  border:2px solid var(--red);
+  color:var(--red);
+  font-family:'Bebas Neue',cursive;
+  font-size:20px;
+  letter-spacing:4px;
+  padding:16px 32px;
+  cursor:pointer;
+  border-radius:var(--radius);
+  transition:all 0.3s;
+  position:relative;
+  overflow:hidden;
+  box-shadow:var(--shadow-red);
+}
+.btn-primary::before{
+  content:'';position:absolute;inset:0;
+  background:var(--red);
+  transform:translateX(-100%);
+  transition:transform 0.3s;
+  z-index:0;
+}
+.btn-primary:hover::before{transform:translateX(0);}
+.btn-primary:hover{color:#000;}
+.btn-primary span{position:relative;z-index:1;}
+.btn-secondary{
+  background:var(--bg3);
+  border:1px solid var(--border);
+  color:var(--text);
+  font-family:'Bebas Neue',cursive;
+  font-size:20px;
+  letter-spacing:4px;
+  padding:16px 32px;
+  cursor:pointer;
+  border-radius:var(--radius);
+  transition:all 0.3s;
+}
+.btn-secondary:hover{border-color:var(--red);color:var(--red);}
+
+/* FORMS */
+.form-screen{
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:40px 20px;
+  background:var(--bg);
+  position:relative;
+}
+.form-card{
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:clamp(24px,5vw,40px);
+  width:100%;max-width:420px;
+  box-shadow:var(--shadow-card), 0 0 40px rgba(255,26,26,0.08);
+}
+.form-title{
+  font-family:'Bebas Neue',cursive;
+  font-size:32px;
+  color:var(--red);
+  letter-spacing:4px;
+  margin-bottom:8px;
+}
+.form-subtitle{color:var(--text-dim);font-size:14px;margin-bottom:28px;}
+.field{margin-bottom:20px;position:relative;}
+.field label{display:block;font-size:12px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;}
+.field input, .field select, .field textarea{
+  width:100%;
+  background:var(--bg4);
+  border:1px solid rgba(255,26,26,0.2);
+  color:var(--text);
+  font-family:'Rajdhani',sans-serif;
+  font-size:16px;
+  padding:12px 16px;
+  border-radius:8px;
+  outline:none;
+  transition:border-color 0.3s, box-shadow 0.3s;
+  -webkit-appearance:none;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--red);
+  box-shadow:0 0 0 3px rgba(255,26,26,0.15);
+}
+.field select option{background:var(--bg4);}
+.field .pw-wrap{position:relative;}
+.field .pw-wrap input{padding-right:44px;}
+.eye-btn{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;color:var(--text-dim);
+  font-size:18px;padding:4px;
+  transition:color 0.2s;
+}
+.eye-btn:hover{color:var(--red);}
+.btn-full{
+  width:100%;
+  background:var(--red);
+  border:none;
+  color:#fff;
+  font-family:'Bebas Neue',cursive;
+  font-size:20px;
+  letter-spacing:4px;
+  padding:16px;
+  cursor:pointer;
+  border-radius:8px;
+  transition:all 0.3s;
+  box-shadow:0 0 20px rgba(255,26,26,0.4);
+  margin-top:8px;
+}
+.btn-full:hover{background:#cc0000;transform:translateY(-1px);}
+.form-link{text-align:center;margin-top:20px;color:var(--text-dim);font-size:14px;}
+.form-link button{background:none;border:none;color:var(--red);cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:14px;}
+.form-error{
+  background:rgba(255,26,26,0.1);
+  border:1px solid var(--red);
+  color:var(--red);
+  padding:10px 14px;
+  border-radius:6px;
+  font-size:14px;
+  margin-bottom:16px;
+  display:none;
+}
+.form-error.show{display:block;}
+
+/* ONBOARDING */
+.onboard-screen{
+  min-height:100vh;padding:24px 16px 40px;
+  background:var(--bg);
+}
+.onboard-header{
+  display:flex;align-items:center;gap:16px;
+  margin-bottom:24px;
+}
+.back-btn{
+  background:var(--bg3);border:1px solid var(--border);
+  color:var(--text-dim);width:40px;height:40px;
+  border-radius:8px;cursor:pointer;font-size:18px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s;flex-shrink:0;
+}
+.back-btn:hover{border-color:var(--red);color:var(--red);}
+.step-indicator{display:flex;gap:6px;flex:1;}
+.step-dot{
+  flex:1;height:4px;border-radius:2px;
+  background:var(--bg4);transition:background 0.4s;
+}
+.step-dot.active{background:var(--red);box-shadow:0 0 8px var(--red);}
+.step-dot.done{background:rgba(255,26,26,0.5);}
+.onboard-card{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:16px;padding:24px;
+  box-shadow:var(--shadow-card);
+}
+.onboard-title{
+  font-family:'Bebas Neue',cursive;
+  font-size:28px;color:var(--red);letter-spacing:3px;margin-bottom:4px;
+}
+.onboard-desc{color:var(--text-dim);font-size:13px;margin-bottom:24px;line-height:1.5;}
+.days-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:20px;}
+.day-chip{
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  background:var(--bg4);border:1px solid var(--border);
+  border-radius:8px;cursor:pointer;font-size:11px;font-weight:700;
+  letter-spacing:1px;color:var(--text-dim);transition:all 0.2s;
+}
+.day-chip.selected{background:var(--red-dim);border-color:var(--red);color:var(--red);}
+.multi-choice{display:flex;flex-direction:column;gap:10px;}
+.choice-chip{
+  background:var(--bg4);border:1px solid var(--border);
+  padding:12px 16px;border-radius:8px;cursor:pointer;
+  font-size:14px;transition:all 0.2s;text-align:left;color:var(--text);
+}
+.choice-chip:hover{border-color:rgba(255,26,26,0.4);}
+.choice-chip.selected{background:var(--red-dim);border-color:var(--red);color:var(--red);}
+.choice-chip.disabled{opacity:0.4;pointer-events:none;}
+
+/* TEST CARD */
+.test-card{
+  background:var(--bg4);border:1px solid var(--border);
+  border-radius:12px;padding:20px;margin-bottom:16px;
+}
+.test-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.test-name{font-family:'Bebas Neue',cursive;font-size:20px;color:var(--text);letter-spacing:2px;}
+.test-range{font-size:12px;color:var(--text-dim);letter-spacing:1px;}
+.how-btn{
+  background:var(--bg3);border:1px solid var(--border);
+  color:var(--red);font-family:'Rajdhani',sans-serif;
+  font-size:13px;padding:6px 12px;border-radius:6px;cursor:pointer;
+  transition:all 0.2s;letter-spacing:1px;
+}
+.how-btn:hover{background:var(--red-dim);}
+.how-to-text{
+  background:var(--bg3);border-left:3px solid var(--red);
+  padding:12px;border-radius:0 8px 8px 0;
+  font-size:13px;color:var(--text-dim);line-height:1.6;
+  margin-top:12px;display:none;
+}
+.how-to-text.show{display:block;}
+.test-input-row{display:flex;gap:10px;align-items:center;margin-top:12px;}
+.test-input-row input{flex:1;background:var(--bg);border:1px solid var(--border);
+  color:var(--text);font-family:'Rajdhani',sans-serif;font-size:16px;
+  padding:10px 14px;border-radius:8px;outline:none;transition:border-color 0.3s;}
+.test-input-row input:focus{border-color:var(--red);}
+.test-unit{color:var(--text-dim);font-size:13px;min-width:40px;}
+.test-done{color:var(--red);font-size:20px;opacity:0;}
+.test-done.show{opacity:1;}
+
+/* MAIN APP */
+#screen-main{
+  min-height:100vh;background:var(--bg);
+  padding-bottom:40px;
+}
+.main-header{
+  padding:20px 16px 0;
+  background:linear-gradient(180deg,rgba(255,26,26,0.05) 0%, transparent 100%);
+}
+.streak-bar{
+  display:flex;align-items:center;justify-content:flex-end;
+  gap:6px;margin-bottom:12px;
+}
+.streak-icon{font-size:20px;color:var(--red);}
+.streak-count{
+  font-family:'Orbitron',monospace;font-size:14px;
+  color:var(--red);font-weight:700;
+}
+.streak-label{font-size:12px;color:var(--text-dim);letter-spacing:1px;}
+.player-name{
+  font-family:'Bebas Neue',cursive;
+  font-size:clamp(36px,10vw,60px);
+  color:#fff;line-height:1;letter-spacing:4px;
+  text-shadow:0 0 20px rgba(255,255,255,0.1);
+}
+.player-meta{
+  display:flex;gap:16px;align-items:center;
+  color:var(--text-dim);font-size:13px;letter-spacing:1px;
+  margin-top:6px;flex-wrap:wrap;
+}
+.player-meta span{display:flex;align-items:center;gap:4px;}
+.meta-dot{color:var(--red);font-size:8px;}
+
+/* MENU GRID */
+.menu-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:10px;padding:20px 16px;
+}
+.menu-card{
+  background:var(--bg2);
+  border:1px solid rgba(255,26,26,0.2);
+  border-radius:12px;padding:18px 14px;
+  cursor:pointer;transition:all 0.25s;
+  box-shadow:0 4px 16px rgba(0,0,0,0.4), 0 0 0 0 var(--red-glow);
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;gap:8px;
+}
+.menu-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,26,26,0.04) 0%, transparent 60%);
+  pointer-events:none;
+}
+.menu-card:hover{
+  border-color:rgba(255,26,26,0.6);
+  box-shadow:0 4px 24px rgba(0,0,0,0.6), 0 0 20px rgba(255,26,26,0.25);
+  transform:translateY(-2px);
+}
+.menu-card:active{transform:translateY(0);}
+.menu-icon{font-size:22px;color:var(--red);}
+.menu-label{
+  font-family:'Bebas Neue',cursive;
+  font-size:17px;letter-spacing:2px;color:var(--text);line-height:1.2;
+}
+.menu-status{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:10px;letter-spacing:1px;
+  padding:3px 8px;border-radius:4px;
+}
+.status-done{background:rgba(0,200,100,0.15);color:#00c864;border:1px solid rgba(0,200,100,0.3);}
+.status-pending{background:rgba(255,26,26,0.1);color:var(--red);border:1px solid var(--border);}
+.status-neutral{background:rgba(255,255,255,0.05);color:var(--text-dim);border:1px solid rgba(255,255,255,0.08);}
+
+/* SECTION SCREENS */
+.section-screen{
+  min-height:100vh;background:var(--bg);
+  display:none;animation:fadeIn 0.3s ease;
+}
+.section-screen.active{display:block;}
+.section-header{
+  display:flex;align-items:center;gap:14px;
+  padding:20px 16px 16px;
+  background:linear-gradient(180deg,rgba(255,26,26,0.06) 0%, transparent 100%);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:10;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+}
+.section-title{
+  font-family:'Bebas Neue',cursive;
+  font-size:26px;letter-spacing:3px;color:var(--text);
+}
+.section-body{padding:20px 16px;}
+
+/* DASHBOARD / CUADRO DE MANDOS */
+.wellness-row{display:flex;gap:10px;margin-bottom:20px;}
+.wellness-card{
+  flex:1;background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;padding:14px;text-align:center;cursor:pointer;
+  transition:all 0.2s;
+}
+.wellness-card:hover{border-color:var(--red);}
+.wellness-card.selected{background:var(--red-dim);border-color:var(--red);}
+.wellness-emoji{font-size:24px;margin-bottom:4px;}
+.wellness-label{font-size:11px;color:var(--text-dim);letter-spacing:1px;}
+.progress-ring-wrap{display:flex;justify-content:center;margin:20px 0;}
+.ring-svg{transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:var(--bg4);stroke-width:10;}
+.ring-fill{fill:none;stroke:var(--red);stroke-width:10;stroke-linecap:round;
+  stroke-dasharray:283;transition:stroke-dashoffset 0.8s ease;}
+.ring-text{font-family:'Bebas Neue',cursive;font-size:36px;fill:#fff;text-anchor:middle;dominant-baseline:middle;transform:rotate(90deg);transform-origin:50% 50%;}
+.ring-sub{font-size:11px;fill:var(--text-dim);text-anchor:middle;dominant-baseline:middle;transform:rotate(90deg);transform-origin:50% 50%;}
+.day-card{
+  background:linear-gradient(135deg,var(--bg3),var(--bg4));
+  border:1px solid var(--border);border-radius:12px;padding:18px;
+  margin-bottom:14px;box-shadow:var(--shadow-card);
+}
+.day-card-label{font-size:11px;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin-bottom:6px;}
+.day-card-title{font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:2px;color:var(--text);}
+.day-card-desc{font-size:13px;color:var(--text-dim);margin-top:4px;line-height:1.5;}
+.task-list{display:flex;flex-direction:column;gap:10px;}
+.task-item{
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;padding:14px;cursor:pointer;transition:all 0.2s;
+}
+.task-item.done{border-color:rgba(0,200,100,0.3);}
+.task-check{
+  width:24px;height:24px;border-radius:50%;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all 0.2s;font-size:14px;
+}
+.task-item.done .task-check{background:#00c864;border-color:#00c864;color:#fff;}
+.task-text{flex:1;font-size:14px;}
+.task-item.done .task-text{color:var(--text-dim);text-decoration:line-through;}
+
+/* GYM SECTION */
+.exercise-card{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:12px;padding:18px;margin-bottom:14px;
+}
+.ex-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.ex-name{font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;}
+.ex-sets{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+.ex-badge{
+  background:var(--bg4);border:1px solid var(--border);
+  padding:4px 10px;border-radius:20px;font-size:12px;color:var(--red);letter-spacing:1px;
+}
+.ex-desc{font-size:13px;color:var(--text-dim);line-height:1.5;margin-bottom:12px;}
+.ex-benefit{
+  background:rgba(255,26,26,0.08);border-left:3px solid var(--red);
+  padding:8px 12px;border-radius:0 6px 6px 0;
+  font-size:12px;color:var(--text-dim);margin-bottom:12px;
+}
+.complete-btn{
+  width:100%;background:transparent;border:1px solid var(--border);
+  color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-size:14px;
+  letter-spacing:2px;padding:10px;border-radius:8px;cursor:pointer;transition:all 0.3s;
+}
+.complete-btn:hover{border-color:var(--red);color:var(--red);}
+.complete-btn.done{
+  background:rgba(0,200,100,0.1);border-color:rgba(0,200,100,0.3);
+  color:#00c864;
+}
+.timer-bar{
+  display:flex;align-items:center;gap:10px;
+  background:var(--bg4);border-radius:8px;padding:10px 14px;margin-top:10px;
+}
+.timer-display{
+  font-family:'Orbitron',monospace;font-size:20px;color:var(--red);font-weight:700;
+  min-width:60px;
+}
+.timer-btn{
+  background:var(--red);border:none;color:#fff;
+  padding:6px 14px;border-radius:6px;cursor:pointer;
+  font-family:'Rajdhani',sans-serif;font-size:13px;letter-spacing:1px;
+  transition:background 0.2s;
+}
+.timer-btn:hover{background:#cc0000;}
+
+/* FOOD SECTION */
+.macro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.macro-card{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;padding:14px;text-align:center;
+}
+.macro-val{font-family:'Orbitron',monospace;font-size:20px;color:var(--red);font-weight:700;}
+.macro-label{font-size:10px;color:var(--text-dim);letter-spacing:2px;margin-top:4px;}
+.food-tabs{display:flex;gap:6px;margin-bottom:16px;}
+.food-tab{
+  flex:1;background:var(--bg3);border:1px solid var(--border);
+  color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-size:13px;
+  letter-spacing:1px;padding:10px;border-radius:8px;cursor:pointer;transition:all 0.2s;
+}
+.food-tab.active{background:var(--red-dim);border-color:var(--red);color:var(--red);}
+.meal-card{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;padding:16px;margin-bottom:12px;
+}
+.meal-time{font-size:10px;letter-spacing:2px;color:var(--red);margin-bottom:4px;}
+.meal-title{font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:2px;margin-bottom:6px;}
+.meal-items{font-size:13px;color:var(--text-dim);line-height:1.7;}
+.meal-kcal{font-family:'Orbitron',monospace;font-size:14px;color:var(--red);margin-top:8px;}
+.log-meal-form{display:flex;gap:8px;margin-bottom:12px;}
+.log-meal-form input{flex:1;background:var(--bg4);border:1px solid var(--border);
+  color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;
+  padding:10px 12px;border-radius:8px;outline:none;}
+.log-meal-form input:focus{border-color:var(--red);}
+.log-btn{background:var(--red);border:none;color:#fff;
+  font-family:'Rajdhani',sans-serif;font-size:13px;letter-spacing:1px;
+  padding:10px 14px;border-radius:8px;cursor:pointer;white-space:nowrap;}
+.water-track{display:flex;align-items:center;gap:12px;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;padding:14px;margin-bottom:16px;}
+.water-cups{display:flex;gap:6px;flex-wrap:wrap;flex:1;}
+.water-cup{
+  width:28px;height:28px;border-radius:6px;
+  border:1px solid var(--border);background:var(--bg4);
+  cursor:pointer;transition:all 0.2s;
+  display:flex;align-items:center;justify-content:center;font-size:12px;
+}
+.water-cup.filled{background:rgba(30,144,255,0.3);border-color:rgba(30,144,255,0.6);}
+
+/* CALENDAR SECTION */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px;}
+.cal-day{
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;
+  background:var(--bg4);border:1px solid transparent;transition:all 0.2s;
+  color:var(--text-dim);
+}
+.cal-day:hover{border-color:var(--border);}
+.cal-day.today{border-color:var(--red);color:var(--red);}
+.cal-day.match{background:var(--red-dim);border-color:var(--red);color:var(--red);}
+.cal-day.training{background:rgba(0,120,255,0.15);border-color:rgba(0,120,255,0.4);color:#4488ff;}
+.cal-legend{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-dim);}
+.legend-dot{width:10px;height:10px;border-radius:3px;}
+
+/* CONTENT SECTION */
+.content-tabs{display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px;}
+.content-tab{
+  white-space:nowrap;background:var(--bg3);border:1px solid var(--border);
+  color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-size:12px;
+  letter-spacing:1px;padding:8px 14px;border-radius:20px;cursor:pointer;transition:all 0.2s;
+}
+.content-tab.active{background:var(--red-dim);border-color:var(--red);color:var(--red);}
+.video-card{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:12px;overflow:hidden;margin-bottom:14px;
+}
+.video-thumb{position:relative;padding-top:56.25%;background:var(--bg4);}
+.video-thumb iframe{position:absolute;inset:0;width:100%;height:100%;border:none;}
+.video-meta{padding:12px;}
+.video-title{font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:2px;margin-bottom:4px;}
+.video-desc{font-size:12px;color:var(--text-dim);}
+.quote-card{
+  background:linear-gradient(135deg,var(--bg3),var(--bg4));
+  border:1px solid var(--border);border-radius:12px;padding:24px;
+  margin-bottom:14px;text-align:center;position:relative;overflow:hidden;
+}
+.quote-card::before{
+  content:'"';position:absolute;top:-10px;left:10px;
+  font-size:120px;color:rgba(255,26,26,0.06);font-family:'Bebas Neue',cursive;
+  line-height:1;pointer-events:none;
+}
+.quote-text{
+  font-family:'Bebas Neue',cursive;font-size:clamp(18px,5vw,26px);
+  letter-spacing:2px;line-height:1.3;color:var(--text);position:relative;z-index:1;
+}
+.quote-author{font-size:12px;color:var(--red);letter-spacing:2px;margin-top:10px;}
+
+/* PROGRESS SECTION */
+.progress-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.stat-card{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;padding:16px;
+}
+.stat-label{font-size:10px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:6px;}
+.stat-val{font-family:'Orbitron',monospace;font-size:22px;color:var(--red);font-weight:700;}
+.stat-change{font-size:11px;color:#00c864;margin-top:4px;}
+.mini-chart{
+  height:80px;background:var(--bg4);border-radius:8px;margin-top:10px;
+  position:relative;overflow:hidden;
+}
+.chart-line{
+  position:absolute;bottom:0;left:0;right:0;top:0;
+  background:linear-gradient(180deg, rgba(255,26,26,0.3) 0%, transparent 100%);
+}
+.locked-overlay{
+  background:rgba(0,0,0,0.85);
+  border:1px solid var(--border);
+  border-radius:12px;padding:24px;
+  text-align:center;margin-bottom:16px;
+}
+.locked-icon{font-size:36px;color:var(--text-muted);margin-bottom:12px;}
+.locked-title{font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--text-dim);}
+.locked-msg{font-size:13px;color:var(--text-muted);margin-top:8px;line-height:1.5;}
+.locked-countdown{
+  font-family:'Orbitron',monospace;font-size:16px;color:var(--red);
+  margin-top:12px;
+}
+
+/* WEEKLY SURVEY */
+.survey-q{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;padding:16px;margin-bottom:14px;
+}
+.survey-q label{font-size:13px;color:var(--text);margin-bottom:12px;display:block;line-height:1.5;}
+.rating-row{display:flex;gap:8px;justify-content:space-between;}
+.rating-btn{
+  flex:1;aspect-ratio:1;background:var(--bg4);border:1px solid var(--border);
+  border-radius:8px;cursor:pointer;font-family:'Orbitron',monospace;font-size:14px;
+  color:var(--text-dim);transition:all 0.2s;
+}
+.rating-btn:hover{border-color:var(--red);}
+.rating-btn.selected{background:var(--red-dim);border-color:var(--red);color:var(--red);}
+
+/* SESSION LOG */
+.log-form-area{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:12px;padding:18px;margin-bottom:16px;
+}
+.log-form-area textarea{
+  width:100%;background:var(--bg4);border:1px solid var(--border);
+  color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;
+  padding:12px;border-radius:8px;outline:none;resize:vertical;
+  min-height:100px;transition:border-color 0.3s;
+}
+.log-form-area textarea:focus{border-color:var(--red);}
+.conclusion-box{
+  background:rgba(255,26,26,0.06);border:1px solid var(--border);
+  border-left:3px solid var(--red);border-radius:0 8px 8px 0;
+  padding:14px;margin-top:12px;
+}
+.conclusion-title{font-size:10px;letter-spacing:2px;color:var(--red);margin-bottom:8px;}
+.conclusion-text{font-size:13px;color:var(--text-dim);line-height:1.6;}
+
+/* NOTIFICATION */
+.notif-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.7);
+  display:flex;align-items:flex-end;justify-content:center;
+  z-index:1000;padding:20px;
+  opacity:0;pointer-events:none;transition:opacity 0.3s;
+}
+.notif-overlay.show{opacity:1;pointer-events:all;}
+.notif-card{
+  background:var(--bg3);border:1px solid var(--red);
+  border-radius:16px;padding:28px 24px;
+  width:100%;max-width:380px;
+  box-shadow:0 0 40px rgba(255,26,26,0.4);
+  text-align:center;
+  transform:translateY(20px);transition:transform 0.3s;
+}
+.notif-overlay.show .notif-card{transform:translateY(0);}
+.notif-title{
+  font-family:'Bebas Neue',cursive;font-size:30px;
+  letter-spacing:4px;color:var(--red);margin-bottom:8px;
+}
+.notif-msg{font-size:15px;color:var(--text-dim);line-height:1.6;margin-bottom:20px;}
+.notif-close{
+  background:var(--red);border:none;color:#fff;
+  font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:3px;
+  padding:12px 32px;border-radius:8px;cursor:pointer;transition:background 0.2s;
+}
+.notif-close:hover{background:#cc0000;}
+
+/* PRIVACY SCREEN */
+.privacy-body{
+  padding:20px 16px;max-width:600px;margin:0 auto;
+  font-size:14px;color:var(--text-dim);line-height:1.8;
+}
+.privacy-body h2{
+  font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:3px;
+  color:var(--red);margin:24px 0 10px;
+}
+.privacy-body p{margin-bottom:14px;}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:rgba(255,26,26,0.3);border-radius:2px;}
+::-webkit-scrollbar-thumb:hover{background:var(--red);}
+
+/* Divider */
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0;}
+
+.section-label{
+  font-size:10px;letter-spacing:3px;color:var(--red);
+  text-transform:uppercase;margin-bottom:12px;display:block;
+}
+.info-box{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;padding:14px;margin-bottom:14px;
+}
+.info-box p{font-size:13px;color:var(--text-dim);line-height:1.6;}
+.badge-grid{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.badge{
+  background:var(--bg4);border:1px solid var(--border);
+  padding:6px 12px;border-radius:20px;font-size:12px;color:var(--text-dim);
+  display:flex;align-items:center;gap:4px;
+}
+.badge.earned{border-color:rgba(255,200,0,0.5);color:#ffc800;background:rgba(255,200,0,0.08);}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     LANDING
+═══════════════════════════════════════════════ -->
+<div id="screen-landing" class="screen active">
+  <div class="landing-bg"></div>
+  <div class="landing-grid"></div>
+  <div class="landing-logo">ELITE FC</div>
+  <div class="landing-sub">Programa de Alto Rendimiento 25/26</div>
+  <div class="landing-tagline">Acceso exclusivo para futbolistas</div>
+  <div class="landing-btns">
+    <button class="btn-primary" onclick="showScreen('screen-register')"><span>Registrarse</span></button>
+    <button class="btn-secondary" onclick="showScreen('screen-login')">Iniciar Sesion</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     REGISTRO
+═══════════════════════════════════════════════ -->
+<div id="screen-register" class="screen">
+  <div class="form-screen">
+    <div class="form-card">
+      <div class="form-title">Registro</div>
+      <div class="form-subtitle">Solo con codigo de acceso autorizado</div>
+      <div class="form-error" id="reg-error"></div>
+      <div class="field">
+        <label>Usuario</label>
+        <input type="text" id="reg-user" placeholder="Tu nombre de usuario" autocomplete="username">
+      </div>
+      <div class="field">
+        <label>Contrasena</label>
+        <div class="pw-wrap">
+          <input type="password" id="reg-pw" placeholder="Minimo 8 caracteres" autocomplete="new-password">
+          <button class="eye-btn" type="button" onclick="togglePw('reg-pw',this)">&#128065;</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Codigo secreto</label>
+        <input type="text" id="reg-code" placeholder="Codigo proporcionado por el entrenador">
+      </div>
+      <button class="btn-full" onclick="doRegister()">Crear Cuenta</button>
+      <div class="form-link"><button onclick="showScreen('screen-landing')">&#8592; Volver</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     LOGIN
+═══════════════════════════════════════════════ -->
+<div id="screen-login" class="screen">
+  <div class="form-screen">
+    <div class="form-card">
+      <div class="form-title">Acceso</div>
+      <div class="form-subtitle">Introduce tus credenciales</div>
+      <div class="form-error" id="login-error"></div>
+      <div class="field">
+        <label>Usuario</label>
+        <input type="text" id="login-user" placeholder="Tu usuario" autocomplete="username">
+      </div>
+      <div class="field">
+        <label>Contrasena</label>
+        <div class="pw-wrap">
+          <input type="password" id="login-pw" placeholder="Tu contrasena" autocomplete="current-password">
+          <button class="eye-btn" type="button" onclick="togglePw('login-pw',this)">&#128065;</button>
+        </div>
+      </div>
+      <button class="btn-full" onclick="doLogin()">Entrar</button>
+      <div class="form-link"><button onclick="showScreen('screen-landing')">&#8592; Volver</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     ONBOARDING 1 — DATOS PERSONALES
+═══════════════════════════════════════════════ -->
+<div id="screen-ob1" class="screen">
+  <div class="onboard-screen">
+    <div class="onboard-header">
+      <button class="back-btn" onclick="showScreen('screen-landing')">&#8592;</button>
+      <div class="step-indicator">
+        <div class="step-dot active" id="sd1-1"></div>
+        <div class="step-dot" id="sd1-2"></div>
+        <div class="step-dot" id="sd1-3"></div>
+        <div class="step-dot" id="sd1-4"></div>
+      </div>
+    </div>
+    <div class="onboard-card">
+      <div class="onboard-title">Tu Perfil</div>
+      <div class="onboard-desc">Estos datos nos permiten personalizar tu programa para la temporada 25/26</div>
+      <div class="field"><label>Nombre</label><input type="text" id="ob-nombre" placeholder="Tu nombre"></div>
+      <div class="field"><label>Apellidos</label><input type="text" id="ob-apellidos" placeholder="Tus apellidos"></div>
+      <div class="field"><label>Edad</label><input type="number" id="ob-edad" placeholder="Ej: 20"></div>
+      <div class="field"><label>Equipo</label><input type="text" id="ob-equipo" placeholder="Nombre de tu equipo"></div>
+      <div class="field">
+        <label>Posicion</label>
+        <select id="ob-posicion">
+          <option value="">Selecciona tu posicion</option>
+          <option value="portero">Portero</option>
+          <option value="central">Defensa Central</option>
+          <option value="lateral">Lateral (Derecho/Izquierdo)</option>
+          <option value="mediocentro">Mediocentro (Defensivo/Campista)</option>
+          <option value="extremo">Extremo (Derecho/Izquierdo)</option>
+          <option value="delantero">Delantero</option>
+        </select>
+      </div>
+      <div class="field"><label>Peso (kg)</label><input type="number" id="ob-peso" placeholder="Ej: 72"></div>
+      <div class="field"><label>Altura (cm)</label><input type="number" id="ob-altura" placeholder="Ej: 178"></div>
+      <button class="btn-full" onclick="ob1Next()">Continuar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     ONBOARDING 2 — DIAS DE ENTRENO
+═══════════════════════════════════════════════ -->
+<div id="screen-ob2" class="screen">
+  <div class="onboard-screen">
+    <div class="onboard-header">
+      <button class="back-btn" onclick="showScreen('screen-ob1')">&#8592;</button>
+      <div class="step-indicator">
+        <div class="step-dot done"></div>
+        <div class="step-dot active"></div>
+        <div class="step-dot"></div>
+        <div class="step-dot"></div>
+      </div>
+    </div>
+    <div class="onboard-card">
+      <div class="onboard-title">Tu Calendario</div>
+      <div class="onboard-desc">Marca los dias que entrenas con tu equipo. No te pondre carga extra esos dias.</div>
+      <span class="section-label">Dias de entreno con el equipo</span>
+      <div class="days-grid" id="training-days">
+        <div class="day-chip" data-day="L">L</div>
+        <div class="day-chip" data-day="M">M</div>
+        <div class="day-chip" data-day="X">X</div>
+        <div class="day-chip" data-day="J">J</div>
+        <div class="day-chip" data-day="V">V</div>
+        <div class="day-chip" data-day="S">S</div>
+        <div class="day-chip" data-day="D">D</div>
+      </div>
+      <span class="section-label" style="margin-top:16px">Dia de partido habitual</span>
+      <div class="days-grid" id="match-day">
+        <div class="day-chip" data-day="L">L</div>
+        <div class="day-chip" data-day="M">M</div>
+        <div class="day-chip" data-day="X">X</div>
+        <div class="day-chip" data-day="J">J</div>
+        <div class="day-chip" data-day="V">V</div>
+        <div class="day-chip" data-day="S">S</div>
+        <div class="day-chip" data-day="D">D</div>
+      </div>
+      <button class="btn-full" style="margin-top:24px" onclick="ob2Next()">Continuar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     ONBOARDING 3 — TEST FISICO INICIAL
+═══════════════════════════════════════════════ -->
+<div id="screen-ob3" class="screen">
+  <div class="onboard-screen">
+    <div class="onboard-header">
+      <button class="back-btn" onclick="showScreen('screen-ob2')">&#8592;</button>
+      <div class="step-indicator">
+        <div class="step-dot done"></div>
+        <div class="step-dot done"></div>
+        <div class="step-dot active"></div>
+        <div class="step-dot"></div>
+      </div>
+    </div>
+    <div class="onboard-card">
+      <div class="onboard-title">Tests Iniciales</div>
+      <div class="onboard-desc">Realiza estos 4 tests y registra tus resultados. Seran tu linea base para medir tu progreso.</div>
+
+      <div class="test-card">
+        <div class="test-card-header">
+          <div>
+            <div class="test-name">Sprint 30 m</div>
+            <div class="test-range">Ref: 3.8 — 4.4 seg</div>
+          </div>
+          <button class="how-btn" onclick="toggleHow(this)">Como hacerlo</button>
+        </div>
+        <div class="how-to-text">Salida estatica desde linea de marca. Sprint maximo hasta los 30 metros. Se cronometra el tiempo desde el primer movimiento hasta cruzar la linea final. Mejor con compañero o con cono a 30 m.</div>
+        <div class="test-input-row">
+          <input type="number" step="0.01" id="t-sprint" placeholder="Ej: 4.12">
+          <span class="test-unit">seg</span>
+          <span class="test-done" id="td-sprint">&#10003;</span>
+        </div>
+      </div>
+
+      <div class="test-card">
+        <div class="test-card-header">
+          <div>
+            <div class="test-name">Salto CMJ</div>
+            <div class="test-range">Ref: 35 — 50 cm</div>
+          </div>
+          <button class="how-btn" onclick="toggleHow(this)">Como hacerlo</button>
+        </div>
+        <div class="how-to-text">De pie, manos en caderas. Flexion rapida de rodillas (contramovimiento) y salta lo mas alto posible sin usar los brazos. Mide con cinta metrica o app de salto vertical desde el punto mas alto que tocas.</div>
+        <div class="test-input-row">
+          <input type="number" id="t-cmj" placeholder="Ej: 42">
+          <span class="test-unit">cm</span>
+          <span class="test-done" id="td-cmj">&#10003;</span>
+        </div>
+      </div>
+
+      <div class="test-card">
+        <div class="test-card-header">
+          <div>
+            <div class="test-name">Yo-Yo Recovery</div>
+            <div class="test-range">Ref: 1200 — 2000 m</div>
+          </div>
+          <button class="how-btn" onclick="toggleHow(this)">Como hacerlo</button>
+        </div>
+        <div class="how-to-text">Carreras de ida y vuelta de 20 metros siguiendo senales sonoras, con 10 segundos de recuperacion activa entre trayectos. El test termina cuando no llegas a la linea a tiempo dos veces. Registra la distancia total recorrida.</div>
+        <div class="test-input-row">
+          <input type="number" id="t-yoyo" placeholder="Ej: 1600">
+          <span class="test-unit">m</span>
+          <span class="test-done" id="td-yoyo">&#10003;</span>
+        </div>
+      </div>
+
+      <div class="test-card">
+        <div class="test-card-header">
+          <div>
+            <div class="test-name">Agilidad 505</div>
+            <div class="test-range">Ref: 2.2 — 2.6 seg</div>
+          </div>
+          <button class="how-btn" onclick="toggleHow(this)">Como hacerlo</button>
+        </div>
+        <div class="how-to-text">Aceleracion desde cono de salida 10 m hasta cono de giro, cambio de direccion 180 grados y regreso al punto inicial a maxima velocidad. Cronometra solo los 5 metros finales (desde el cono de giro hasta la linea de inicio).</div>
+        <div class="test-input-row">
+          <input type="number" step="0.01" id="t-505" placeholder="Ej: 2.35">
+          <span class="test-unit">seg</span>
+          <span class="test-done" id="td-505">&#10003;</span>
+        </div>
+      </div>
+
+      <button class="btn-full" style="margin-top:8px" onclick="ob3Next()">Guardar Tests</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     ONBOARDING 4 — FORMULARIO OBJETIVO
+═══════════════════════════════════════════════ -->
+<div id="screen-ob4" class="screen">
+  <div class="onboard-screen">
+    <div class="onboard-header">
+      <button class="back-btn" onclick="showScreen('screen-ob3')">&#8592;</button>
+      <div class="step-indicator">
+        <div class="step-dot done"></div>
+        <div class="step-dot done"></div>
+        <div class="step-dot done"></div>
+        <div class="step-dot active"></div>
+      </div>
+    </div>
+    <div class="onboard-card">
+      <div class="onboard-title">Tu Objetivo</div>
+      <div class="onboard-desc">Responde con sinceridad. Con esto disenaremos tu plan hasta Junio 2026.</div>
+
+      <span class="section-label">Bloque 1 — Rendimiento fisico</span>
+      <div class="field">
+        <label>Elige hasta 2 prioridades fisicas</label>
+        <div class="multi-choice" id="prioridad-fisica">
+          <div class="choice-chip" onclick="toggleChoice(this,'pf',2)">Ganar velocidad punta</div>
+          <div class="choice-chip" onclick="toggleChoice(this,'pf',2)">Mejorar aceleracion y arrancada</div>
+          <div class="choice-chip" onclick="toggleChoice(this,'pf',2)">Ganar masa muscular y fuerza</div>
+          <div class="choice-chip" onclick="toggleChoice(this,'pf',2)">Mejorar resistencia para el minuto 90</div>
+          <div class="choice-chip" onclick="toggleChoice(this,'pf',2)">Reducir porcentaje de grasa</div>
+          <div class="choice-chip" onclick="toggleChoice(this,'pf',2)">Recuperar nivel tras lesion</div>
+          <div class="choice-chip" onclick="toggleChoice(this,'pf',2)">Mejorar potencia de salto</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Molestias o lesiones recurrentes</label>
+        <input type="text" id="ob-lesion" placeholder="Ej: Tirones en el isquio, rodilla...">
+      </div>
+      <div class="field">
+        <label>Nivel de fuerza en el gimnasio</label>
+        <div class="multi-choice" id="nivel-gym">
+          <div class="choice-chip" onclick="selectOne(this,'ng')">Principiante</div>
+          <div class="choice-chip" onclick="selectOne(this,'ng')">Intermedio</div>
+          <div class="choice-chip" onclick="selectOne(this,'ng')">Avanzado</div>
+        </div>
+      </div>
+
+      <span class="section-label" style="margin-top:16px">Bloque 2 — Perfil futbolistico</span>
+      <div class="field">
+        <label>Rol principal en el equipo</label>
+        <input type="text" id="ob-rol" placeholder="Ej: Extremo regateador, mediocentro organizador...">
+      </div>
+      <div class="field">
+        <label>Faceta en la que quieres destacar</label>
+        <input type="text" id="ob-faceta" placeholder="Ej: Duelos 1vs1, pase largo, remate de cabeza...">
+      </div>
+      <div class="field">
+        <label>Mayor debilidad tactica</label>
+        <input type="text" id="ob-debilidad" placeholder="Ej: Posicionamiento defensivo, presion...">
+      </div>
+
+      <span class="section-label" style="margin-top:16px">Bloque 3 — Estilo de vida</span>
+      <div class="field">
+        <label>Horas de sueno habituales</label>
+        <div class="multi-choice" id="sueno-ob">
+          <div class="choice-chip" onclick="selectOne(this,'so')">Menos de 6h</div>
+          <div class="choice-chip" onclick="selectOne(this,'so')">7-8h</div>
+          <div class="choice-chip" onclick="selectOne(this,'so')">Mas de 9h</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Nivel de estres fuera del futbol</label>
+        <div class="multi-choice" id="estres-ob">
+          <div class="choice-chip" onclick="selectOne(this,'eo')">Estudiante/trabajo con mucho estres</div>
+          <div class="choice-chip" onclick="selectOne(this,'eo')">Nivel medio</div>
+          <div class="choice-chip" onclick="selectOne(this,'eo')">Vida enfocada solo al futbol</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Dias extra de entrenamiento por cuenta propia</label>
+        <div class="multi-choice" id="dias-extra-ob">
+          <div class="choice-chip" onclick="selectOne(this,'deo')">2 dias</div>
+          <div class="choice-chip" onclick="selectOne(this,'deo')">3 dias</div>
+          <div class="choice-chip" onclick="selectOne(this,'deo')">4 dias</div>
+          <div class="choice-chip" onclick="selectOne(this,'deo')">5 dias</div>
+        </div>
+      </div>
+
+      <span class="section-label" style="margin-top:16px">Bloque 4 — Nutricion</span>
+      <div class="field">
+        <label>Objetivo con el peso</label>
+        <div class="multi-choice" id="peso-ob">
+          <div class="choice-chip" onclick="selectOne(this,'po')">Bajar grasa y estar mas ligero</div>
+          <div class="choice-chip" onclick="selectOne(this,'po')">Mantener peso pero ganar musculo</div>
+          <div class="choice-chip" onclick="selectOne(this,'po')">Subir de peso y volumen</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Dieta especifica o alergias</label>
+        <input type="text" id="ob-dieta" placeholder="Ej: Sin restricciones, vegano, celiaco...">
+      </div>
+
+      <button class="btn-full" style="margin-top:8px" onclick="ob4Finish()">Iniciar mi Programa</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     MAIN — MENU PRINCIPAL
+═══════════════════════════════════════════════ -->
+<div id="screen-main" class="screen">
+  <div class="main-header">
+    <div class="streak-bar">
+      <span class="streak-icon">&#128293;</span>
+      <span class="streak-count" id="streak-num">0</span>
+      <span class="streak-label">DIAS DE RACHA</span>
+    </div>
+    <div class="player-name" id="main-name">ALEX MOYA</div>
+    <div class="player-meta">
+      <span><span class="meta-dot">&#9632;</span><span id="main-pos">Mediocentro</span></span>
+      <span><span class="meta-dot">&#9632;</span><span id="main-age">21 anos</span></span>
+      <span><span class="meta-dot">&#9632;</span><span id="main-team">CD Cieza</span></span>
+    </div>
+  </div>
+
+  <div class="menu-grid" id="menu-grid">
+    <div class="menu-card" onclick="openSection('dash')">
+      <div class="menu-icon">&#9673;</div>
+      <div class="menu-label">Cuadro de Mandos</div>
+      <div class="menu-status status-pending" id="status-dash">Pendiente</div>
+    </div>
+    <div class="menu-card" onclick="openSection('gym')">
+      <div class="menu-icon">&#9651;</div>
+      <div class="menu-label">El Gimnasio</div>
+      <div class="menu-status status-pending" id="status-gym">Pendiente</div>
+    </div>
+    <div class="menu-card" onclick="openSection('food')">
+      <div class="menu-icon">&#9670;</div>
+      <div class="menu-label">Alimentacion</div>
+      <div class="menu-status status-pending" id="status-food">Pendiente</div>
+    </div>
+    <div class="menu-card" onclick="openSection('cal')">
+      <div class="menu-icon">&#9679;</div>
+      <div class="menu-label">Dia de Partido</div>
+      <div class="menu-status status-neutral" id="status-cal">Calendario</div>
+    </div>
+    <div class="menu-card" onclick="openSection('corner')">
+      <div class="menu-icon">&#9650;</div>
+      <div class="menu-label">Corner Tactico</div>
+      <div class="menu-status status-neutral">Videos</div>
+    </div>
+    <div class="menu-card" onclick="openSection('progress')">
+      <div class="menu-icon">&#9632;</div>
+      <div class="menu-label">Progress Lab</div>
+      <div class="menu-status status-neutral">Evolucion</div>
+    </div>
+    <div class="menu-card" onclick="openSection('session')">
+      <div class="menu-icon">&#9646;</div>
+      <div class="menu-label">Registro Sesion</div>
+      <div class="menu-status status-pending" id="status-session">Pendiente</div>
+    </div>
+    <div class="menu-card" onclick="openSection('privacy')">
+      <div class="menu-icon">&#9633;</div>
+      <div class="menu-label">Privacidad</div>
+      <div class="menu-status status-neutral">Legal</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION: CUADRO DE MANDOS
+═══════════════════════════════════════════════ -->
+<div id="section-dash" class="section-screen">
+  <div class="section-header">
+    <button class="back-btn" onclick="closeSection('dash')">&#8592;</button>
+    <div class="section-title">Cuadro de Mandos</div>
+  </div>
+  <div class="section-body">
+    <div class="day-card">
+      <div class="day-card-label">Hoy</div>
+      <div class="day-card-title" id="dash-day-title">Sesion de Potencia + Analisis Tactico</div>
+      <div class="day-card-desc" id="dash-day-desc">Hoy es dia de carga moderada. Enfocate en la calidad de cada movimiento.</div>
+    </div>
+
+    <span class="section-label">Estado de forma</span>
+    <div class="wellness-row">
+      <div class="wellness-card" id="w-1" onclick="setWellness(1)">
+        <div class="wellness-emoji">&#9651;</div>
+        <div class="wellness-label">Top forma</div>
+      </div>
+      <div class="wellness-card" id="w-2" onclick="setWellness(2)">
+        <div class="wellness-emoji">&#9472;</div>
+        <div class="wellness-label">Normal</div>
+      </div>
+      <div class="wellness-card" id="w-3" onclick="setWellness(3)">
+        <div class="wellness-emoji">&#9661;</div>
+        <div class="wellness-label">Cansado</div>
+      </div>
+    </div>
+
+    <div id="fatigue-alert" class="info-box" style="display:none;border-color:rgba(255,150,0,0.4)">
+      <p style="color:#ff9500">Alta fatiga detectada. Hoy reducimos el volumen de pesas y priorizamos movilidad y recuperacion activa. Escucha a tu cuerpo.</p>
+    </div>
+
+    <span class="section-label">Sueno y fatiga</span>
+    <div class="survey-q">
+      <label>Como has dormido hoy?</label>
+      <div class="rating-row" id="sleep-rating">
+        <button class="rating-btn" onclick="setRating('sleep',1,this)">1</button>
+        <button class="rating-btn" onclick="setRating('sleep',2,this)">2</button>
+        <button class="rating-btn" onclick="setRating('sleep',3,this)">3</button>
+        <button class="rating-btn" onclick="setRating('sleep',4,this)">4</button>
+        <button class="rating-btn" onclick="setRating('sleep',5,this)">5</button>
+      </div>
+    </div>
+    <div class="survey-q">
+      <label>Nivel de fatiga muscular</label>
+      <div class="rating-row" id="fatigue-rating">
+        <button class="rating-btn" onclick="setRating('fatigue',1,this)">1</button>
+        <button class="rating-btn" onclick="setRating('fatigue',2,this)">2</button>
+        <button class="rating-btn" onclick="setRating('fatigue',3,this)">3</button>
+        <button class="rating-btn" onclick="setRating('fatigue',4,this)">4</button>
+        <button class="rating-btn" onclick="setRating('fatigue',5,this)">5</button>
+      </div>
+    </div>
+
+    <span class="section-label">Progreso del dia</span>
+    <div class="progress-ring-wrap">
+      <svg class="ring-svg" width="120" height="120" viewBox="0 0 100 100">
+        <circle class="ring-bg" cx="50" cy="50" r="45"/>
+        <circle class="ring-fill" id="progress-ring" cx="50" cy="50" r="45" stroke-dashoffset="283"/>
+        <text class="ring-text" x="50" y="46" id="ring-pct">0%</text>
+        <text class="ring-sub" x="50" y="60">completado</text>
+      </svg>
+    </div>
+
+    <span class="section-label">Tareas del dia</span>
+    <div class="task-list">
+      <div class="task-item" id="task-gym" onclick="toggleTask('gym')">
+        <div class="task-check" id="check-gym"></div>
+        <div class="task-text">Sesion de gimnasio completada</div>
+      </div>
+      <div class="task-item" id="task-food" onclick="toggleTask('food')">
+        <div class="task-check" id="check-food"></div>
+        <div class="task-text">Comidas del dia registradas</div>
+      </div>
+      <div class="task-item" id="task-water" onclick="toggleTask('water')">
+        <div class="task-check" id="check-water"></div>
+        <div class="task-text">Hidratacion completa (8 vasos)</div>
+      </div>
+      <div class="task-item" id="task-tactico" onclick="toggleTask('tactico')">
+        <div class="task-check" id="check-tactico"></div>
+        <div class="task-text">Video tactico revisado</div>
+      </div>
+      <div class="task-item" id="task-session" onclick="toggleTask('session')">
+        <div class="task-check" id="check-session"></div>
+        <div class="task-text">Sesion de hoy registrada</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION: GIMNASIO
+═══════════════════════════════════════════════ -->
+<div id="section-gym" class="section-screen">
+  <div class="section-header">
+    <button class="back-btn" onclick="closeSection('gym')">&#8592;</button>
+    <div class="section-title">El Gimnasio</div>
+  </div>
+  <div class="section-body">
+    <div class="day-card" style="margin-bottom:16px">
+      <div class="day-card-label">Sesion de hoy</div>
+      <div class="day-card-title" id="gym-session-title">Potencia del Tren Inferior</div>
+      <div class="day-card-desc" id="gym-session-desc">Enfocate en la velocidad de ejecucion en la fase concentrica. Descansos completos.</div>
+    </div>
+
+    <div id="exercise-list"></div>
+
+    <div class="timer-bar">
+      <div class="timer-display" id="timer-display">0:60</div>
+      <button class="timer-btn" onclick="startTimer()">Iniciar Descanso</button>
+      <button class="timer-btn" style="background:var(--bg4);color:var(--text-dim)" onclick="resetTimer()">Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION: ALIMENTACION
+═══════════════════════════════════════════════ -->
+<div id="section-food" class="section-screen">
+  <div class="section-header">
+    <button class="back-btn" onclick="closeSection('food')">&#8592;</button>
+    <div class="section-title">Alimentacion</div>
+  </div>
+  <div class="section-body">
+    <div class="macro-grid" id="macro-display">
+      <div class="macro-card">
+        <div class="macro-val" id="m-kcal">2800</div>
+        <div class="macro-label">kcal</div>
+      </div>
+      <div class="macro-card">
+        <div class="macro-val" id="m-prot">160g</div>
+        <div class="macro-label">Proteina</div>
+      </div>
+      <div class="macro-card">
+        <div class="macro-val" id="m-carb">320g</div>
+        <div class="macro-label">Carbos</div>
+      </div>
+    </div>
+
+    <span class="section-label">Hidratacion</span>
+    <div class="water-track">
+      <div style="font-size:11px;color:var(--text-dim);letter-spacing:1px;min-width:36px">AGUA</div>
+      <div class="water-cups" id="water-cups"></div>
+    </div>
+
+    <div class="food-tabs">
+      <button class="food-tab active" onclick="foodTab('plan',this)">Plan del dia</button>
+      <button class="food-tab" onclick="foodTab('log',this)">Registrar comida</button>
+      <button class="food-tab" onclick="foodTab('supp',this)">Suplementacion</button>
+    </div>
+
+    <div id="food-panel-plan">
+      <div id="meal-plan-list"></div>
+    </div>
+    <div id="food-panel-log" style="display:none">
+      <span class="section-label">Registro libre — lo que has comido</span>
+      <div class="log-meal-form">
+        <input type="text" id="food-log-input" placeholder="Describe el alimento y cantidad...">
+        <button class="log-btn" onclick="addFoodLog()">+ Agregar</button>
+      </div>
+      <div id="food-log-list"></div>
+      <div class="info-box" id="food-log-totals" style="display:none">
+        <span class="section-label">Total registrado</span>
+        <div class="macro-grid">
+          <div class="macro-card"><div class="macro-val" id="log-kcal">0</div><div class="macro-label">kcal est.</div></div>
+          <div class="macro-card"><div class="macro-val" id="log-prot">0g</div><div class="macro-label">Prot. est.</div></div>
+          <div class="macro-card"><div class="macro-val" id="log-carb">0g</div><div class="macro-label">Carb. est.</div></div>
+        </div>
+      </div>
+    </div>
+    <div id="food-panel-supp" style="display:none">
+      <div class="meal-card">
+        <div class="meal-time">Suplementacion recomendada</div>
+        <div class="meal-title">Creatina Monohidrato</div>
+        <div class="meal-items">5g diarios, en cualquier momento del dia. Mejora la potencia y la recuperacion entre series. Con el tiempo, aumento de fuerza del 5-15%.</div>
+      </div>
+      <div class="meal-card">
+        <div class="meal-time">Pre-entreno</div>
+        <div class="meal-title">Cafeina</div>
+        <div class="meal-items">3-6mg/kg peso, 30-45 min antes del entreno. Mejora el rendimiento de velocidad, fuerza y atencion. Evitar despues de las 16:00h.</div>
+      </div>
+      <div class="meal-card">
+        <div class="meal-time">Post-entreno</div>
+        <div class="meal-title">Proteina Whey</div>
+        <div class="meal-items">25-30g en los 30 minutos post-sesion si no tienes tiempo de comer. Maximiza la sintesis proteica muscular.</div>
+      </div>
+      <div class="info-box">
+        <p style="font-size:11px;color:var(--text-muted)">Disclaimer: Estas sugerencias son orientativas y estan basadas en la evidencia cientifica disponible. Consulta siempre con un profesional de la salud antes de iniciar cualquier protocolo de suplementacion.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION: DIA DE PARTIDO
+═══════════════════════════════════════════════ -->
+<div id="section-cal" class="section-screen">
+  <div class="section-header">
+    <button class="back-btn" onclick="closeSection('cal')">&#8592;</button>
+    <div class="section-title">Dia de Partido</div>
+  </div>
+  <div class="section-body">
+    <div class="day-card" style="margin-bottom:16px">
+      <div class="day-card-label">Proximo partido</div>
+      <div class="day-card-title" id="next-match-display">Sin partido marcado</div>
+      <div class="day-card-desc" id="match-countdown">Selecciona el dia de tu proximo partido</div>
+    </div>
+    <div class="cal-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Partido</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#4488ff"></div>Entreno equipo</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--bg4)"></div>Libre</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <button class="back-btn" onclick="calPrevMonth()">&#8592;</button>
+      <div style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:3px" id="cal-month-label">ABRIL 2026</div>
+      <button class="back-btn" onclick="calNextMonth()">&#8594;</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px">
+      <div style="text-align:center;font-size:10px;color:var(--text-muted);padding:4px">L</div>
+      <div style="text-align:center;font-size:10px;color:var(--text-muted);padding:4px">M</div>
+      <div style="text-align:center;font-size:10px;color:var(--text-muted);padding:4px">X</div>
+      <div style="text-align:center;font-size:10px;color:var(--text-muted);padding:4px">J</div>
+      <div style="text-align:center;font-size:10px;color:var(--text-muted);padding:4px">V</div>
+      <div style="text-align:center;font-size:10px;color:var(--text-muted);padding:4px">S</div>
+      <div style="text-align:center;font-size:10px;color:var(--text-muted);padding:4px">D</div>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div class="info-box" id="match-load-info" style="display:none">
+      <p id="match-load-text"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION: CORNER TACTICO
+═══════════════════════════════════════════════ -->
+<div id="section-corner" class="section-screen">
+  <div class="section-header">
+    <button class="back-btn" onclick="closeSection('corner')">&#8592;</button>
+    <div class="section-title">Corner Tactico</div>
+  </div>
+  <div class="section-body">
+    <div class="quote-card" id="daily-quote">
+      <div class="quote-text" id="quote-text">El campeon no es quien nunca falla, sino quien nunca se rinde.</div>
+      <div class="quote-author">Mentalidad de Elite</div>
+    </div>
+    <div class="content-tabs" id="content-tabs">
+      <button class="content-tab active" onclick="contentTab('pos',this)">Mi posicion</button>
+      <button class="content-tab" onclick="contentTab('mot',this)">Motivacion</button>
+      <button class="content-tab" onclick="contentTab('skills',this)">Tecnica</button>
+      <button class="content-tab" onclick="contentTab('daily',this)">Mindset</button>
+    </div>
+    <div id="video-list"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION: PROGRESS LAB
+═══════════════════════════════════════════════ -->
+<div id="section-progress" class="section-screen">
+  <div class="section-header">
+    <button class="back-btn" onclick="closeSection('progress')">&#8592;</button>
+    <div class="section-title">Progress Lab</div>
+  </div>
+  <div class="section-body">
+    <div id="progress-locked" class="locked-overlay">
+      <div class="locked-icon">&#9632;</div>
+      <div class="locked-title">Actualizacion Bloqueada</div>
+      <div class="locked-msg">Los tests se actualizan mensualmente para medir tu progreso de forma precisa. Mantente constante y volvemos a medirte en:</div>
+      <div class="locked-countdown" id="progress-countdown">29 dias, 18 horas</div>
+    </div>
+
+    <span class="section-label">Tests iniciales — Semana 1</span>
+    <div class="progress-stats" id="base-stats"></div>
+
+    <hr class="divider">
+    <span class="section-label">Encuesta semanal de seguimiento</span>
+    <div class="survey-q">
+      <label>Como ha ido el entreno esta semana en general?</label>
+      <div class="rating-row">
+        <button class="rating-btn" onclick="setRating('semana',1,this)">1</button>
+        <button class="rating-btn" onclick="setRating('semana',2,this)">2</button>
+        <button class="rating-btn" onclick="setRating('semana',3,this)">3</button>
+        <button class="rating-btn" onclick="setRating('semana',4,this)">4</button>
+        <button class="rating-btn" onclick="setRating('semana',5,this)">5</button>
+      </div>
+    </div>
+    <div class="survey-q">
+      <label>Has cumplido el plan de alimentacion?</label>
+      <div class="rating-row">
+        <button class="rating-btn" onclick="setRating('alim',1,this)">1</button>
+        <button class="rating-btn" onclick="setRating('alim',2,this)">2</button>
+        <button class="rating-btn" onclick="setRating('alim',3,this)">3</button>
+        <button class="rating-btn" onclick="setRating('alim',4,this)">4</button>
+        <button class="rating-btn" onclick="setRating('alim',5,this)">5</button>
+      </div>
+    </div>
+    <div class="survey-q">
+      <label>Te sientes mejor futbolisticamente que la semana anterior?</label>
+      <div class="multi-choice">
+        <div class="choice-chip" onclick="selectOne(this,'sw')">Si, noto mejora clara</div>
+        <div class="choice-chip" onclick="selectOne(this,'sw')">Igual que antes</div>
+        <div class="choice-chip" onclick="selectOne(this,'sw')">Noto retroceso</div>
+      </div>
+    </div>
+    <button class="btn-full" onclick="saveSurvey()">Enviar encuesta</button>
+
+    <hr class="divider">
+    <span class="section-label">Logros</span>
+    <div class="badge-grid" id="badges-grid"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION: REGISTRO SESION
+═══════════════════════════════════════════════ -->
+<div id="section-session" class="section-screen">
+  <div class="section-header">
+    <button class="back-btn" onclick="closeSection('session')">&#8592;</button>
+    <div class="section-title">Registro de Sesion</div>
+  </div>
+  <div class="section-body">
+    <div class="day-card" style="margin-bottom:16px">
+      <div class="day-card-label">Registro de hoy</div>
+      <div class="day-card-title" id="session-date">Lunes 13 de Abril</div>
+    </div>
+    <div class="log-form-area">
+      <span class="section-label">Lo que has hecho hoy</span>
+      <textarea id="session-what" placeholder="Describe tu entreno: ejercicios, series, sensaciones, carga..."></textarea>
+    </div>
+    <div class="log-form-area">
+      <span class="section-label">Zona de mas trabajo</span>
+      <div class="multi-choice">
+        <div class="choice-chip" onclick="selectOne(this,'zona')">Tren superior</div>
+        <div class="choice-chip" onclick="selectOne(this,'zona')">Tren inferior</div>
+        <div class="choice-chip" onclick="selectOne(this,'zona')">Core y estabilidad</div>
+        <div class="choice-chip" onclick="selectOne(this,'zona')">Cardio y resistencia</div>
+        <div class="choice-chip" onclick="selectOne(this,'zona')">Flexibilidad y movilidad</div>
+        <div class="choice-chip" onclick="selectOne(this,'zona')">Entreno con balon</div>
+      </div>
+    </div>
+    <div class="log-form-area">
+      <span class="section-label">Nivel de esfuerzo percibido (RPE)</span>
+      <div class="rating-row">
+        <button class="rating-btn" onclick="setRating('rpe',1,this)">1</button>
+        <button class="rating-btn" onclick="setRating('rpe',2,this)">2</button>
+        <button class="rating-btn" onclick="setRating('rpe',3,this)">3</button>
+        <button class="rating-btn" onclick="setRating('rpe',4,this)">4</button>
+        <button class="rating-btn" onclick="setRating('rpe',5,this)">5</button>
+        <button class="rating-btn" onclick="setRating('rpe',6,this)">6</button>
+        <button class="rating-btn" onclick="setRating('rpe',7,this)">7</button>
+        <button class="rating-btn" onclick="setRating('rpe',8,this)">8</button>
+        <button class="rating-btn" onclick="setRating('rpe',9,this)">9</button>
+        <button class="rating-btn" onclick="setRating('rpe',10,this)">10</button>
+      </div>
+    </div>
+    <button class="btn-full" onclick="saveSession()">Guardar sesion</button>
+    <div class="conclusion-box" id="session-conclusion" style="display:none">
+      <div class="conclusion-title">Analisis del entrenador</div>
+      <div class="conclusion-text" id="conclusion-text"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION: PRIVACIDAD
+═══════════════════════════════════════════════ -->
+<div id="section-privacy" class="section-screen">
+  <div class="section-header">
+    <button class="back-btn" onclick="closeSection('privacy')">&#8592;</button>
+    <div class="section-title">Politica de Privacidad</div>
+  </div>
+  <div class="privacy-body">
+    <p>Ultima actualizacion: Abril 2026</p>
+    <h2>Responsable del tratamiento</h2>
+    <p>ELITE FC es una plataforma de entrenamiento deportivo personalizado. El responsable del tratamiento de los datos es el titular de la plataforma, con sede en Cieza, Murcia, Espana.</p>
+    <h2>Datos que recogemos</h2>
+    <p>Recopilamos los datos que el usuario introduce voluntariamente: nombre, apellidos, edad, datos biometricos (peso, altura), resultados de tests fisicos, informacion sobre habitos de sueno, alimentacion y entrenamiento. Estos datos son necesarios para la prestacion del servicio de entrenamiento personalizado.</p>
+    <h2>Finalidad del tratamiento</h2>
+    <p>Los datos se utilizan exclusivamente para generar planes de entrenamiento y nutricion personalizados, hacer seguimiento del progreso deportivo, y mejorar la experiencia del usuario dentro de la plataforma.</p>
+    <h2>Base juridica</h2>
+    <p>El tratamiento se basa en el consentimiento expreso del usuario al registrarse en la plataforma, de conformidad con el Reglamento (UE) 2016/679 (RGPD) y la Ley Organica 3/2018 de Proteccion de Datos Personales (LOPDGDD).</p>
+    <h2>Conservacion de datos</h2>
+    <p>Los datos se conservan mientras el usuario mantenga su cuenta activa. Una vez cancelada la cuenta, los datos seran eliminados en un plazo maximo de 30 dias.</p>
+    <h2>Derechos del usuario</h2>
+    <p>El usuario tiene derecho a acceder, rectificar, suprimir, limitar el tratamiento, oponerse al mismo y a la portabilidad de sus datos. Para ejercer estos derechos, puede contactar con el responsable del tratamiento a traves de la plataforma.</p>
+    <h2>Seguridad</h2>
+    <p>Los datos se almacenan en Firebase (Google LLC), plataforma certificada bajo estandares de seguridad internacionales. Las contrasenas se almacenan con hash criptografico y nunca en texto plano.</p>
+    <h2>Cookies</h2>
+    <p>Esta plataforma utiliza localStorage del navegador para mantener la sesion del usuario activa y guardar preferencias locales. No se utilizan cookies de seguimiento de terceros ni publicidad.</p>
+    <h2>Cambios en la politica</h2>
+    <p>Nos reservamos el derecho a actualizar esta politica. Cualquier cambio relevante sera comunicado al usuario dentro de la plataforma.</p>
+  </div>
+</div>
+
+<!-- NOTIFICATION -->
+<div class="notif-overlay" id="notif-overlay">
+  <div class="notif-card">
+    <div class="notif-title" id="notif-title">Dia Perfecto</div>
+    <div class="notif-msg" id="notif-msg">Has completado todas tus tareas de hoy. Eso es mentalidad de elite.</div>
+    <button class="notif-close" onclick="closeNotif()">Cerrar</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let APP = {
+  user: null,
+  profile: null,
+  tests: null,
+  objectives: null,
+  streak: 0,
+  tasks: {gym:false,food:false,water:false,tactico:false,session:false},
+  timerInterval: null,
+  timerSeconds: 60,
+  calDate: new Date(),
+  matchDays: [],
+  foodLogs: [],
+  waterCount: 0,
+  ratings: {},
+  badges: [],
+  regDate: null
+};
+
+const QUOTES = [
+  {q:"El campeon no es quien nunca falla, sino quien nunca se rinde.", a:"Mentalidad de Elite"},
+  {q:"El talento te lleva a la puerta, pero el trabajo te deja pasar.", a:"Elite FC"},
+  {q:"No entrenes hasta que puedas, entrena hasta que no puedas fallar.", a:"Filosofia de Elite"},
+  {q:"El dolor de hoy es la fuerza de manana.", a:"Mentalidad Profesional"},
+  {q:"Cada sesion que nadie ve es la victoria que todos veran.", a:"Elite FC"},
+  {q:"La disciplina hace lo que la motivacion no puede sostener.", a:"Mentalidad de Elite"},
+  {q:"Gana primero en tu cabeza, luego en el campo.", a:"Psicologia Deportiva"},
+];
+
+const COMPLETE_MSGS = [
+  {t:"Dia Perfecto", m:"Has completado todas tus tareas de hoy. Eso es mentalidad de elite. Sigue asi manana."},
+  {t:"Nivel Elite", m:"Todo completado. Cada dia asi te acerca a ser el jugador que quieres ser."},
+  {t:"Constancia Total", m:"Has cumplido al 100% hoy. El trabajo de hoy se convierte en el talento de manana."},
+  {t:"Compromiso Maximo", m:"Tareas completadas. Recuerda: los que trabajan cuando nadie mira, brillan cuando todos miran."},
+  {t:"Dia de Campeon", m:"Todo hecho. Descansa bien esta noche, tu cuerpo lo necesita para progresar."},
+];
+
+const EXERCISES = {
+  potencia: [
+    {name:"Sentadilla con salto",sets:"4",reps:"6",rest:120,desc:"Desciende controlado hasta 90 grados y explota hacia arriba. Aterriza suave absorbiendo el impacto.",benefit:"Desarrolla la potencia explosiva del tren inferior, directamente transferible a la arrancada y el sprint."},
+    {name:"Peso muerto rumano",sets:"3",reps:"8",rest:90,desc:"Espalda neutra, barra pegada a las piernas, bisagra de cadera hasta sentir tension en isquios.",benefit:"Fortalece la cadena posterior (gluteos, isquios), reduciendo el riesgo de lesion y mejorando la potencia de carrera."},
+    {name:"Step-up explosivo",sets:"3",reps:"8/lado",rest:90,desc:"Un pie en banco, impulsate con fuerza hacia arriba elevando la rodilla contraria. Baja controlado.",benefit:"Trabaja la fuerza unilateral de piernas, corrigiendo desequilibrios y mejorando la estabilidad en carrera."},
+    {name:"Plancha lateral con rotacion",sets:"3",reps:"10/lado",rest:60,desc:"En plancha lateral, rota el brazo libre por debajo del cuerpo controlando el movimiento.",benefit:"Fortalece el core lateral y la rotacion de tronco, fundamentales para los cambios de direccion."},
+  ],
+  movilidad: [
+    {name:"Movilidad de tobillo en pared",sets:"3",reps:"12/lado",rest:30,desc:"Pie delante de la pared, intenta tocarla con la rodilla sin levantar el talon. Aumenta distancia progresivamente.",benefit:"Mejora la movilidad de tobillo, reduciendo el riesgo de lesiones y mejorando la mecanica de carrera."},
+    {name:"Hip flexor stretch dinamico",sets:"3",reps:"10/lado",rest:30,desc:"Zancada profunda, rodilla trasera en suelo, empuja la cadera hacia adelante mientras mantienes el tronco erguido.",benefit:"Libera los flexores de cadera, especialmente importantes despues de partidos o sesiones largas."},
+    {name:"Rotacion toracica en suelo",sets:"3",reps:"8/lado",rest:30,desc:"En decubito lateral, rodillas dobladas, rota el torso hacia arriba siguiendo el brazo libre con la vista.",benefit:"Mejora la movilidad toracica, esencial para los gestos de golpeo y los cambios de ritmo."},
+  ],
+  resistencia: [
+    {name:"Intervals 15-15",sets:"8",reps:"15s sprint / 15s trote",rest:60,desc:"15 segundos a maxima intensidad, 15 segundos trote suave. Maxima calidad en cada sprint.",benefit:"Mejora la capacidad de repetir esfuerzos maximos, fundamental para aguantar el nivel al minuto 80-90."},
+    {name:"Core rotacional con banda",sets:"3",reps:"12/lado",rest:45,desc:"De pie con banda anclada, rota el tronco con los brazos extendidos mimando un movimiento de pase o golpeo.",benefit:"Fortalece el core en los patrones de movimiento del futbol, mejorando la potencia de los gestos tecnicos."},
+  ]
+};
+
+const VIDEO_DATA = {
+  portero: [
+    {url:"https://www.youtube.com/embed/vjCG00J_b2E",title:"Tecnica de portero avanzada",desc:"Posicionamiento, salidas y reflejos de elite"},
+    {url:"https://www.youtube.com/embed/zD8E8IuV9gY",title:"Entrenamiento mental portero",desc:"Decision rapida y liderazgo desde la porteria"},
+    {url:"https://www.youtube.com/embed/SnZbM6sLu_s",title:"Porteros modernos — analisis tactico",desc:"Como leer el juego desde la ultima linea"},
+  ],
+  central: [
+    {url:"https://www.youtube.com/embed/dQ1-aXGO0ac",title:"Defensa central de elite",desc:"Anticipacion, posicionamiento y liderazgo"},
+    {url:"https://www.youtube.com/embed/fltqAWyd7qk",title:"Duelos aereos y en linea",desc:"Ganar la posicion antes de que llegue el balon"},
+    {url:"https://www.youtube.com/embed/T1fVajUl_Jo",title:"Centrales modernos — build-up",desc:"Como iniciar el juego desde defensa"},
+    {url:"https://www.youtube.com/embed/8WEezquIfXk",title:"Bloqueos y anticipaciones",desc:"Leer el juego para interceptar"},
+  ],
+  lateral: [
+    {url:"https://www.youtube.com/embed/TK8uweX8Ujw",title:"Lateral moderno — ataque y defensa",desc:"Como cubrir banda y apoyar en ataque"},
+    {url:"https://www.youtube.com/embed/Ms4wZhuOm0U",title:"Incorporaciones desde lateral",desc:"Timing para llegar al area sin ser anticipado"},
+    {url:"https://www.youtube.com/embed/_YSnG8xRu7I",title:"Lateral — duelos 1vs1 defensivos",desc:"Tecnica para cerrar extremos con o sin balon"},
+  ],
+  mediocentro: [
+    {url:"https://www.youtube.com/embed/5gvRh9Stnus",title:"Rodri — Como dominar el centro",desc:"Control del ritmo y vision de juego"},
+    {url:"https://www.youtube.com/embed/No-FmLTABgE",title:"Tercer hombre y triangulaciones",desc:"Incrustarse entre lineas para recibir"},
+    {url:"https://www.youtube.com/embed/fArlC51a2gs",title:"Mediocentro — Presion y recuperacion",desc:"Cuando correr, cuando esperar"},
+    {url:"https://www.youtube.com/embed/H4TVqz1f06c",title:"Pase largo y cambio de juego",desc:"Tecnica para abrir el campo con precision"},
+    {url:"https://www.youtube.com/embed/dP9Jt_rbCco",title:"Lectura del juego en el centro",desc:"Posicionamiento antes de recibir"},
+  ],
+  extremo: [
+    {url:"https://www.youtube.com/embed/FDLJML4EQ8Y",title:"1vs1 — Cuando encarar y cuando asegurar",desc:"Decision en banda basada en el contexto"},
+    {url:"https://www.youtube.com/embed/X3-wOJSyIVk",title:"Extremo — movimientos sin balon",desc:"Crear espacio para ti y para tus companeros"},
+    {url:"https://www.youtube.com/embed/Vws7xIHNiwM",title:"Finalizacion desde extremo",desc:"Entrar al area en el momento justo"},
+    {url:"https://www.youtube.com/embed/IqXyt0lAA4M",title:"Presion alta desde extremo",desc:"Como defender desde arriba en bloque alto"},
+  ],
+  delantero: [
+    {url:"https://www.youtube.com/embed/7ypTu2rJGLI",title:"Movimientos de delantero centro",desc:"Desmarques, espaldas y arrastres"},
+    {url:"https://www.youtube.com/embed/hhdOKsbKZt0",title:"Finalizacion — Tecnica de remate",desc:"Potencia, precision y decision en el area"},
+    {url:"https://www.youtube.com/embed/4R_aSYKH7D4",title:"Delantero — asociacion y profundidad",desc:"Jugar entre lineas y fijar centrales"},
+    {url:"https://www.youtube.com/embed/hn-3OvRR5Is",title:"Presion y pressing ofensivo",desc:"Como robar el balon en campo contrario"},
+  ],
+  motivacion_futbol: [
+    {url:"https://www.youtube.com/embed/QpJGi27KIhs",title:"Motivacion futbol — Hambre de victoria",desc:"Para cuando necesitas un empujon"},
+    {url:"https://www.youtube.com/embed/xUXTQ8QXh1I",title:"El precio del exito",desc:"Lo que hacen cuando nadie mira"},
+    {url:"https://www.youtube.com/embed/XNkwf8i-rjQ",title:"Mentalidad de campeon",desc:"Historias que inspiran dentro y fuera del campo"},
+  ],
+  mindset: [
+    {url:"https://www.youtube.com/embed/xuC3gy8Ai8o",title:"Rutina matinal de alto rendimiento",desc:"Como empezar el dia con ventaja"},
+    {url:"https://www.youtube.com/embed/rWLUgsEIO1g",title:"Disciplina y consistencia",desc:"El secreto que no tiene atajos"},
+    {url:"https://www.youtube.com/embed/i8NlVxTQLj4",title:"Mentalidad diaria de elite",desc:"Habitos que separan a los buenos de los mejores"},
+  ],
+  skills: [
+    {url:"https://www.youtube.com/embed/eM_VgIoDJwU",title:"Control y primer toque de calidad",desc:"La base de todo jugador tecnico"},
+    {url:"https://www.youtube.com/embed/m3OeYOmQOc0",title:"Pase y precision — ejercicios clave",desc:"Mejora tu juego de combination"},
+    {url:"https://www.youtube.com/embed/YjoV7UH_0ZM",title:"Skills, regates y fintas",desc:"Herramientas para el 1vs1"},
+  ],
+};
+
+const MEALS = {
+  normal: [
+    {time:"07:30 — Desayuno",title:"Energia de inicio",items:"Avena con leche (80g), platano, 2 huevos revueltos, cafe sin azucar",kcal:520},
+    {time:"10:30 — Media manana",title:"Snack de rendimiento",items:"Yogur griego natural (200g), 30g nueces, te verde",kcal:280},
+    {time:"14:00 — Comida principal",title:"Carga de carbohidratos",items:"Arroz integral (150g cocido), pechuga de pollo a la plancha (180g), ensalada, aceite de oliva",kcal:680},
+    {time:"17:30 — Pre-entreno",title:"Combustible para el gym",items:"Tostadas de pan integral (2), atun en agua (1 lata), platano",kcal:390},
+    {time:"21:00 — Cena",title:"Recuperacion nocturna",items:"Salmon al horno (200g), brocoli y espinacas salteadas, 1 patata mediana",kcal:520},
+  ],
+  partido: [
+    {time:"08:00 — Desayuno",title:"Carga pre-partido",items:"Avena cocida (100g), miel, platano, 3 huevos, zumo de naranja natural",kcal:640},
+    {time:"11:00 — Media manana",title:"Ajuste energetico",items:"Tostadas (3) con tomate y aceite, fruta de temporada",kcal:320},
+    {time:"13:30 — Comida pre-partido",title:"Pasta de campeon",items:"Pasta (200g cocida) con tomate natural, pollo sin piel, ensalada suave",kcal:750},
+    {time:"Pre-partido (1h antes)",title:"Gel de energia",items:"1 gel energetico o 1 platano + 500ml agua con sales",kcal:160},
+    {time:"Post-partido",title:"Recuperacion rapida",items:"Batido de proteina (30g) + platano inmediatamente, luego cena completa en 2h",kcal:480},
+  ],
+  descanso: [
+    {time:"08:30 — Desayuno",title:"Manana tranquila",items:"Tortilla francesa (3 huevos), tostadas integrales, fruta variada, cafe",kcal:480},
+    {time:"11:30 — Media manana",title:"Snack ligero",items:"Frutos secos (30g), manzana, infusion",kcal:220},
+    {time:"14:30 — Comida",title:"Proteina y verdura",items:"Lentejas (150g cocidas), merluza a la plancha (150g), ensalada completa",kcal:580},
+    {time:"18:00 — Merienda",title:"Recuperacion pasiva",items:"Queso fresco (100g), arrandanos, crackers de arroz",kcal:260},
+    {time:"21:00 — Cena ligera",title:"Sueno reparador",items:"Pavo a la plancha (150g), verduras al vapor, 1 cucharada aceite oliva",kcal:380},
+  ],
+};
+
+// ═══════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if(el) { el.classList.add('active'); el.scrollTop=0; }
+}
+
+function openSection(name) {
+  document.querySelectorAll('.section-screen').forEach(s=>s.classList.remove('active'));
+  const el = document.getElementById('section-'+name);
+  if(el) { el.classList.add('active'); el.scrollTop=0; }
+  document.getElementById('screen-main').style.display='none';
+  if(name==='corner') renderVideos('pos');
+  if(name==='progress') renderProgress();
+  if(name==='gym') renderExercises();
+  if(name==='food') renderFood();
+  if(name==='cal') renderCalendar();
+  if(name==='session') renderSessionDate();
+}
+
+function closeSection(name) {
+  document.querySelectorAll('.section-screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-main').style.display='block';
+  showScreen('screen-main');
+}
+
+// ═══════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════
+function togglePw(id,btn) {
+  const el = document.getElementById(id);
+  if(el.type==='password'){el.type='text';btn.innerHTML='&#128584;';}
+  else{el.type='password';btn.innerHTML='&#128065;';}
+}
+
+function showErr(id,msg) {
+  const el = document.getElementById(id);
+  el.textContent=msg;el.classList.add('show');
+}
+function hideErr(id){document.getElementById(id).classList.remove('show');}
+
+function doRegister() {
+  hideErr('reg-error');
+  const user = document.getElementById('reg-user').value.trim();
+  const pw = document.getElementById('reg-pw').value;
+  const code = document.getElementById('reg-code').value.trim();
+  if(!user||!pw||!code){showErr('reg-error','Completa todos los campos');return;}
+  if(code!=='cdcieza'){showErr('reg-error','Codigo incorrecto. Contacta con tu entrenador.');return;}
+  if(pw.length<8){showErr('reg-error','La contrasena debe tener minimo 8 caracteres');return;}
+  if(localStorage.getItem('efc_user_'+user)){showErr('reg-error','Este usuario ya existe');return;}
+  const userData = {username:user, pw:btoa(pw), regDate: Date.now()};
+  localStorage.setItem('efc_user_'+user, JSON.stringify(userData));
+  APP.user = user;
+  APP.regDate = userData.regDate;
+  showScreen('screen-ob1');
+}
+
+function doLogin() {
+  hideErr('login-error');
+  const user = document.getElementById('login-user').value.trim();
+  const pw = document.getElementById('login-pw').value;
+  if(!user||!pw){showErr('login-error','Introduce usuario y contrasena');return;}
+  const stored = localStorage.getItem('efc_user_'+user);
+  if(!stored){showErr('login-error','Usuario no encontrado');return;}
+  const data = JSON.parse(stored);
+  if(data.pw!==btoa(pw)){showErr('login-error','Contrasena incorrecta');return;}
+  APP.user = user;
+  APP.regDate = data.regDate;
+  loadUserData();
+  checkOnboarding();
+}
+
+function loadUserData() {
+  const p = localStorage.getItem('efc_profile_'+APP.user);
+  if(p) APP.profile = JSON.parse(p);
+  const t = localStorage.getItem('efc_tests_'+APP.user);
+  if(t) APP.tests = JSON.parse(t);
+  const o = localStorage.getItem('efc_obj_'+APP.user);
+  if(o) APP.objectives = JSON.parse(o);
+  loadStreak();
+  loadDailyTasks();
+}
+
+function checkOnboarding() {
+  if(!APP.profile) { showScreen('screen-ob1'); return; }
+  if(!APP.tests) { showScreen('screen-ob3'); return; }
+  if(!APP.objectives) { showScreen('screen-ob4'); return; }
+  enterMain();
+}
+
+// ═══════════════════════════════════════════════
+// ONBOARDING
+// ═══════════════════════════════════════════════
+function ob1Next() {
+  const nom=v('ob-nombre'),ap=v('ob-apellidos'),age=v('ob-edad'),
+        eq=v('ob-equipo'),pos=document.getElementById('ob-posicion').value,
+        peso=v('ob-peso'),alt=v('ob-altura');
+  if(!nom||!ap||!age||!eq||!pos||!peso||!alt){alert('Completa todos los campos');return;}
+  APP.profile = {nombre:nom,apellidos:ap,edad:age,equipo:eq,posicion:pos,peso:peso,altura:alt,trainingDays:[],matchDay:null};
+  localStorage.setItem('efc_profile_'+APP.user, JSON.stringify(APP.profile));
+  showScreen('screen-ob2');
+  initDayChips();
+}
+
+function ob2Next() {
+  const tDays = Array.from(document.querySelectorAll('#training-days .day-chip.selected')).map(d=>d.dataset.day);
+  const mDay = document.querySelector('#match-day .day-chip.selected');
+  APP.profile.trainingDays = tDays;
+  APP.profile.matchDay = mDay ? mDay.dataset.day : null;
+  localStorage.setItem('efc_profile_'+APP.user, JSON.stringify(APP.profile));
+  showScreen('screen-ob3');
+}
+
+function ob3Next() {
+  const sprint=v('t-sprint'),cmj=v('t-cmj'),yoyo=v('t-yoyo'),t505=v('t-505');
+  if(!sprint||!cmj||!yoyo||!t505){alert('Completa todos los tests');return;}
+  APP.tests = {sprint,cmj,yoyo,t505, date: Date.now()};
+  localStorage.setItem('efc_tests_'+APP.user, JSON.stringify(APP.tests));
+  showScreen('screen-ob4');
+}
+
+function ob4Finish() {
+  const pf = Array.from(document.querySelectorAll('[data-group="pf"].selected')||document.querySelectorAll('#prioridad-fisica .choice-chip.selected')).map(c=>c.textContent);
+  APP.objectives = {
+    prioFisica: pf,
+    lesion:v('ob-lesion'),
+    nivelGym: getSelected('ng'),
+    rol:v('ob-rol'),
+    faceta:v('ob-faceta'),
+    debilidad:v('ob-debilidad'),
+    sueno: getSelected('so'),
+    estres: getSelected('eo'),
+    diasExtra: getSelected('deo'),
+    pesoObj: getSelected('po'),
+    dieta:v('ob-dieta'),
+    date: Date.now()
+  };
+  localStorage.setItem('efc_obj_'+APP.user, JSON.stringify(APP.objectives));
+  enterMain();
+}
+
+function v(id){return document.getElementById(id)?document.getElementById(id).value.trim():'';}
+function getSelected(grp){
+  const el=document.querySelector('.choice-chip[data-grp="'+grp+'"]')||
+           document.querySelector('#'+grp+' .selected')||
+           document.querySelector('[onclick*="selectOne(this,\''+grp+'\'"].selected');
+  if(el) return el.textContent;
+  // fallback: search all
+  const all = document.querySelectorAll('.choice-chip.selected');
+  return '';
+}
+
+function initDayChips() {
+  document.querySelectorAll('#training-days .day-chip').forEach(c=>{
+    c.onclick=()=>c.classList.toggle('selected');
+  });
+  let matchSel = null;
+  document.querySelectorAll('#match-day .day-chip').forEach(c=>{
+    c.onclick=()=>{
+      document.querySelectorAll('#match-day .day-chip').forEach(x=>x.classList.remove('selected'));
+      c.classList.add('selected');
+      matchSel=c;
+    };
+  });
+}
+
+function toggleChoice(el,grp,max) {
+  const container = el.parentElement;
+  const selected = container.querySelectorAll('.selected');
+  if(el.classList.contains('selected')) { el.classList.remove('selected'); return; }
+  if(selected.length>=max) { alert('Puedes elegir maximo '+max+' opciones'); return; }
+  el.classList.add('selected');
+}
+
+function selectOne(el,grp) {
+  const container = el.parentElement;
+  container.querySelectorAll('.choice-chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function toggleHow(btn) {
+  const card = btn.closest('.test-card');
+  const how = card.querySelector('.how-to-text');
+  how.classList.toggle('show');
+  btn.textContent = how.classList.contains('show') ? 'Ocultar' : 'Como hacerlo';
+}
+
+// ═══════════════════════════════════════════════
+// MAIN
+// ═══════════════════════════════════════════════
+function enterMain() {
+  const p = APP.profile;
+  document.getElementById('main-name').textContent = (p.nombre+' '+p.apellidos).toUpperCase();
+  document.getElementById('main-pos').textContent = formatPos(p.posicion);
+  document.getElementById('main-age').textContent = p.edad+' anos';
+  document.getElementById('main-team').textContent = p.equipo;
+  loadStreak();
+  loadDailyTasks();
+  setDailyQuote();
+  showScreen('screen-main');
+}
+
+function formatPos(p){
+  const m={portero:'Portero',central:'Defensa Central',lateral:'Lateral',mediocentro:'Mediocentro',extremo:'Extremo',delantero:'Delantero'};
+  return m[p]||p;
+}
+
+// ═══════════════════════════════════════════════
+// STREAK
+// ═══════════════════════════════════════════════
+function loadStreak() {
+  const key='efc_streak_'+APP.user;
+  const data = JSON.parse(localStorage.getItem(key)||'{"count":0,"lastDate":""}');
+  const today = todayStr();
+  if(data.lastDate===today) {
+    APP.streak=data.count;
+  } else if(data.lastDate===yesterday()) {
+    APP.streak=data.count+1;
+    localStorage.setItem(key,JSON.stringify({count:APP.streak,lastDate:today}));
+  } else if(data.lastDate==='') {
+    APP.streak=1;
+    localStorage.setItem(key,JSON.stringify({count:1,lastDate:today}));
+  } else {
+    APP.streak=1;
+    localStorage.setItem(key,JSON.stringify({count:1,lastDate:today}));
+  }
+  document.getElementById('streak-num').textContent=APP.streak;
+}
+
+function todayStr(){const d=new Date();return d.toISOString().split('T')[0];}
+function yesterday(){const d=new Date();d.setDate(d.getDate()-1);return d.toISOString().split('T')[0];}
+
+// ═══════════════════════════════════════════════
+// DAILY TASKS
+// ═══════════════════════════════════════════════
+function loadDailyTasks() {
+  const key='efc_tasks_'+APP.user+'_'+todayStr();
+  const saved = JSON.parse(localStorage.getItem(key)||'{}');
+  APP.tasks = Object.assign({gym:false,food:false,water:false,tactico:false,session:false},saved);
+  Object.keys(APP.tasks).forEach(t=>{ if(APP.tasks[t]) markTaskDone(t,false); });
+  updateProgress();
+}
+
+function toggleTask(name) {
+  APP.tasks[name]=!APP.tasks[name];
+  if(APP.tasks[name]) markTaskDone(name,true);
+  else markTaskUndone(name);
+  saveTasks();
+  updateProgress();
+  checkAllDone();
+}
+
+function markTaskDone(name,animate) {
+  const item=document.getElementById('task-'+name);
+  const check=document.getElementById('check-'+name);
+  if(item){item.classList.add('done');}
+  if(check){check.innerHTML='&#10003;';}
+  const statusEl=document.getElementById('status-'+name);
+  if(statusEl){statusEl.textContent='Completado';statusEl.className='menu-status status-done';}
+}
+function markTaskUndone(name) {
+  const item=document.getElementById('task-'+name);
+  const check=document.getElementById('check-'+name);
+  if(item){item.classList.remove('done');}
+  if(check){check.innerHTML='';}
+  const statusEl=document.getElementById('status-'+name);
+  if(statusEl){statusEl.textContent='Pendiente';statusEl.className='menu-status status-pending';}
+}
+
+function saveTasks(){localStorage.setItem('efc_tasks_'+APP.user+'_'+todayStr(),JSON.stringify(APP.tasks));}
+
+function updateProgress() {
+  const total=5;
+  const done=Object.values(APP.tasks).filter(Boolean).length;
+  const pct=Math.round((done/total)*100);
+  const offset=283-(283*(pct/100));
+  const ring=document.getElementById('progress-ring');
+  const pctEl=document.getElementById('ring-pct');
+  if(ring){ring.style.strokeDashoffset=offset;}
+  if(pctEl){pctEl.textContent=pct+'%';}
+}
+
+function checkAllDone() {
+  const all=Object.values(APP.tasks).every(Boolean);
+  if(all){
+    const msgs=COMPLETE_MSGS;
+    const m=msgs[Math.floor(Math.random()*msgs.length)];
+    showNotif(m.t,m.m);
+  }
+}
+
+// ═══════════════════════════════════════════════
+// WELLNESS
+// ═══════════════════════════════════════════════
+function setWellness(n) {
+  [1,2,3].forEach(i=>document.getElementById('w-'+i).classList.remove('selected'));
+  document.getElementById('w-'+n).classList.add('selected');
+  const alert=document.getElementById('fatigue-alert');
+  if(alert){alert.style.display = n===3?'block':'none';}
+}
+
+function setRating(group,val,btn) {
+  const container=btn.parentElement;
+  container.querySelectorAll('.rating-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  APP.ratings[group]=val;
+  if(group==='fatigue'&&val>=4){setWellness(3);}
+}
+
+// ═══════════════════════════════════════════════
+// GYM
+// ═══════════════════════════════════════════════
+function renderExercises() {
+  const pos = APP.profile?APP.profile.posicion:'mediocentro';
+  const obj = APP.objectives;
+  let exList = EXERCISES.potencia;
+  if(obj&&obj.prioFisica&&obj.prioFisica.some(p=>p.toLowerCase().includes('resistencia'))) {
+    exList=[...EXERCISES.potencia,...EXERCISES.resistencia];
+  }
+  const today=new Date().getDay();
+  const isTraining=APP.profile&&APP.profile.trainingDays&&APP.profile.trainingDays.includes(['D','L','M','X','J','V','S'][today]);
+  const sessionTitle=isTraining?'Activacion Pre-Entreno':'Sesion de Potencia + Core';
+  const sessionDesc=isTraining?'Dia de entreno con el equipo. Sesion corta de activacion y movilidad.':'Sesion completa. Prioriza la calidad en cada repeticion.';
+  document.getElementById('gym-session-title').textContent=sessionTitle;
+  document.getElementById('gym-session-desc').textContent=sessionDesc;
+
+  const el=document.getElementById('exercise-list');
+  if(!el)return;
+  el.innerHTML='';
+  const list=isTraining?EXERCISES.movilidad:exList;
+  list.forEach((ex,i)=>{
+    const saved=localStorage.getItem('efc_ex_'+APP.user+'_'+todayStr()+'_'+i);
+    const done=saved==='done';
+    el.innerHTML+=`<div class="exercise-card">
+      <div class="ex-header">
+        <div class="ex-name">${ex.name}</div>
+      </div>
+      <div class="ex-sets">
+        <span class="ex-badge">${ex.sets} series</span>
+        <span class="ex-badge">${ex.reps} reps</span>
+        <span class="ex-badge">Descanso ${ex.rest}s</span>
+      </div>
+      <div class="ex-desc">${ex.desc}</div>
+      <div class="ex-benefit">Mejora: ${ex.benefit}</div>
+      <button class="complete-btn ${done?'done':''}" onclick="completeEx(${i},this)">${done?'Completado':'Marcar como completado'}</button>
+    </div>`;
+  });
+}
+
+function completeEx(i,btn) {
+  localStorage.setItem('efc_ex_'+APP.user+'_'+todayStr()+'_'+i,'done');
+  btn.textContent='Completado';
+  btn.classList.add('done');
+  const allEx=document.querySelectorAll('#exercise-list .complete-btn');
+  if(Array.from(allEx).every(b=>b.classList.contains('done'))){
+    APP.tasks.gym=true;
+    markTaskDone('gym',true);
+    saveTasks();updateProgress();checkAllDone();
+  }
+}
+
+let timerInt=null;let timerSec=60;
+function startTimer() {
+  if(timerInt){clearInterval(timerInt);timerInt=null;document.querySelector('.timer-btn').textContent='Iniciar Descanso';return;}
+  timerSec=60;
+  timerInt=setInterval(()=>{
+    timerSec--;
+    const m=Math.floor(timerSec/60);const s=timerSec%60;
+    const el=document.getElementById('timer-display');
+    if(el)el.textContent=m+':'+(s<10?'0':'')+s;
+    if(timerSec<=0){clearInterval(timerInt);timerInt=null;document.querySelector('.timer-btn').textContent='Iniciar Descanso';}
+  },1000);
+  document.querySelector('.timer-btn').textContent='Pausar';
+}
+function resetTimer(){clearInterval(timerInt);timerInt=null;timerSec=60;const el=document.getElementById('timer-display');if(el)el.textContent='1:00';document.querySelector('.timer-btn').textContent='Iniciar Descanso';}
+
+// ═══════════════════════════════════════════════
+// FOOD
+// ═══════════════════════════════════════════════
+function renderFood() {
+  const p=APP.profile;
+  const peso=p?parseInt(p.peso):70;
+  const kcal=Math.round(peso*38);
+  const prot=Math.round(peso*2.2);
+  const carb=Math.round(kcal*0.45/4);
+  document.getElementById('m-kcal').textContent=kcal;
+  document.getElementById('m-prot').textContent=prot+'g';
+  document.getElementById('m-carb').textContent=carb+'g';
+
+  // Water cups
+  const wc=document.getElementById('water-cups');
+  if(wc){
+    wc.innerHTML='';
+    const saved=parseInt(localStorage.getItem('efc_water_'+APP.user+'_'+todayStr())||'0');
+    APP.waterCount=saved;
+    for(let i=0;i<8;i++){
+      wc.innerHTML+=`<div class="water-cup ${i<saved?'filled':''}" onclick="toggleWater(${i})">
+        ${i<saved?'W':''}
+      </div>`;
+    }
+  }
+
+  // Meals
+  const today=new Date().getDay();
+  const isMatch=APP.matchDays&&APP.matchDays.includes(todayStr());
+  const isRest=APP.profile&&APP.profile.trainingDays&&!APP.profile.trainingDays.includes(['D','L','M','X','J','V','S'][today]);
+  const mealType=isMatch?'partido':(isRest?'descanso':'normal');
+  const meals=MEALS[mealType];
+  const ml=document.getElementById('meal-plan-list');
+  if(ml){
+    ml.innerHTML='';
+    meals.forEach(m=>{
+      ml.innerHTML+=`<div class="meal-card">
+        <div class="meal-time">${m.time}</div>
+        <div class="meal-title">${m.title}</div>
+        <div class="meal-items">${m.items}</div>
+        <div class="meal-kcal">${m.kcal} kcal</div>
+      </div>`;
+    });
+  }
+}
+
+function toggleWater(i) {
+  APP.waterCount = i<APP.waterCount ? i : i+1;
+  localStorage.setItem('efc_water_'+APP.user+'_'+todayStr(),APP.waterCount);
+  if(APP.waterCount>=8){APP.tasks.water=true;markTaskDone('water',true);saveTasks();updateProgress();checkAllDone();}
+  renderWaterCups();
+}
+function renderWaterCups(){
+  const wc=document.getElementById('water-cups');if(!wc)return;
+  wc.innerHTML='';
+  for(let i=0;i<8;i++){
+    wc.innerHTML+=`<div class="water-cup ${i<APP.waterCount?'filled':''}" onclick="toggleWater(${i})">${i<APP.waterCount?'W':''}</div>`;
+  }
+}
+
+function foodTab(tab,btn) {
+  ['plan','log','supp'].forEach(t=>{
+    const el=document.getElementById('food-panel-'+t);
+    if(el)el.style.display=t===tab?'block':'none';
+  });
+  document.querySelectorAll('.food-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(tab==='food')renderFood();
+}
+
+let foodLogs=[];
+function addFoodLog(){
+  const inp=document.getElementById('food-log-input');
+  if(!inp.value.trim())return;
+  const item={text:inp.value.trim(),kcal:Math.round(100+Math.random()*300),prot:Math.round(5+Math.random()*30),carb:Math.round(10+Math.random()*50)};
+  foodLogs.push(item);
+  inp.value='';
+  renderFoodLog();
+  APP.tasks.food=true;markTaskDone('food',true);saveTasks();updateProgress();checkAllDone();
+}
+function renderFoodLog(){
+  const list=document.getElementById('food-log-list');
+  if(!list)return;
+  list.innerHTML='';
+  let totalKcal=0,totalProt=0,totalCarb=0;
+  foodLogs.forEach(item=>{
+    totalKcal+=item.kcal;totalProt+=item.prot;totalCarb+=item.carb;
+    list.innerHTML+=`<div class="meal-card" style="margin-bottom:8px">
+      <div class="meal-items">${item.text}</div>
+      <div class="meal-kcal">~${item.kcal} kcal est.</div>
+    </div>`;
+  });
+  if(foodLogs.length>0){
+    document.getElementById('food-log-totals').style.display='block';
+    document.getElementById('log-kcal').textContent=totalKcal;
+    document.getElementById('log-prot').textContent=totalProt+'g';
+    document.getElementById('log-carb').textContent=totalCarb+'g';
+  }
+}
+
+// ═══════════════════════════════════════════════
+// CALENDAR
+// ═══════════════════════════════════════════════
+function renderCalendar() {
+  const d=APP.calDate;
+  const monthNames=['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+  document.getElementById('cal-month-label').textContent=monthNames[d.getMonth()]+' '+d.getFullYear();
+  const firstDay=new Date(d.getFullYear(),d.getMonth(),1);
+  let startDay=firstDay.getDay()-1; if(startDay<0)startDay=6;
+  const daysInMonth=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
+  const grid=document.getElementById('cal-grid');
+  if(!grid)return;
+  grid.innerHTML='';
+  const today=new Date();
+  for(let i=0;i<startDay;i++){grid.innerHTML+=`<div class="cal-day" style="opacity:0"></div>`;}
+  const matchDays=JSON.parse(localStorage.getItem('efc_matchdays_'+APP.user)||'[]');
+  const trainingDays=APP.profile?APP.profile.trainingDays:[];
+  const dayNames=['D','L','M','X','J','V','S'];
+  for(let day=1;day<=daysInMonth;day++){
+    const date=new Date(d.getFullYear(),d.getMonth(),day);
+    const dateStr=date.toISOString().split('T')[0];
+    const isToday=date.toDateString()===today.toDateString();
+    const isMatch=matchDays.includes(dateStr);
+    const dayName=dayNames[date.getDay()];
+    const isTraining=trainingDays.includes(dayName)&&!isMatch;
+    let cls='cal-day';
+    if(isToday)cls+=' today';
+    if(isMatch)cls+=' match';
+    else if(isTraining)cls+=' training';
+    grid.innerHTML+=`<div class="${cls}" onclick="toggleMatchDay('${dateStr}')">${day}</div>`;
+  }
+  updateMatchCountdown(matchDays);
+}
+
+function toggleMatchDay(dateStr) {
+  const key='efc_matchdays_'+APP.user;
+  const days=JSON.parse(localStorage.getItem(key)||'[]');
+  const idx=days.indexOf(dateStr);
+  if(idx>=0) days.splice(idx,1); else days.push(dateStr);
+  localStorage.setItem(key,JSON.stringify(days));
+  APP.matchDays=days;
+  renderCalendar();
+}
+
+function updateMatchCountdown(matchDays) {
+  const today=new Date();today.setHours(0,0,0,0);
+  const future=matchDays.map(d=>new Date(d)).filter(d=>d>=today).sort((a,b)=>a-b);
+  const el=document.getElementById('next-match-display');
+  const cd=document.getElementById('match-countdown');
+  const info=document.getElementById('match-load-info');
+  const infoT=document.getElementById('match-load-text');
+  if(future.length>0){
+    const next=future[0];
+    const diff=Math.round((next-today)/(1000*60*60*24));
+    const opts={weekday:'long',day:'numeric',month:'long'};
+    if(el)el.textContent=next.toLocaleDateString('es-ES',opts);
+    if(cd)cd.textContent=diff===0?'Hoy es dia de partido':'Faltan '+diff+' dias';
+    if(info)info.style.display='block';
+    let loadMsg='';
+    if(diff===0)loadMsg='Dia de partido. Alimentacion especial activada. Descanso muscular total. Activacion ligera de 10-15 min max.';
+    else if(diff===1)loadMsg='Vispera del partido. Sin carga muscular hoy. Solo movilidad y activacion del sistema nervioso.';
+    else if(diff===2)loadMsg='2 dias para el partido. Sesion tecnica ligera. No acumules fatiga.';
+    else loadMsg='Tienes margen para entrenar con carga esta semana. Administra la intensidad segun te acerques al partido.';
+    if(infoT)infoT.textContent=loadMsg;
+  } else {
+    if(el)el.textContent='Sin partido marcado';
+    if(cd)cd.textContent='Marca el dia de tu proximo partido tocando en el calendario';
+    if(info)info.style.display='none';
+  }
+}
+
+function calPrevMonth(){APP.calDate.setMonth(APP.calDate.getMonth()-1);renderCalendar();}
+function calNextMonth(){APP.calDate.setMonth(APP.calDate.getMonth()+1);renderCalendar();}
+
+// ═══════════════════════════════════════════════
+// CORNER TACTICO
+// ═══════════════════════════════════════════════
+function setDailyQuote() {
+  const d=new Date().getDate();
+  const q=QUOTES[d%QUOTES.length];
+  const el=document.getElementById('quote-text');
+  if(el)el.textContent=q.q;
+}
+
+function renderVideos(tab) {
+  const pos=APP.profile?APP.profile.posicion:'mediocentro';
+  let videos=[];
+  if(tab==='pos'){
+    videos=VIDEO_DATA[pos]||VIDEO_DATA.mediocentro;
+  } else if(tab==='mot'){
+    videos=VIDEO_DATA.motivacion_futbol;
+  } else if(tab==='skills'){
+    videos=VIDEO_DATA.skills;
+  } else if(tab==='daily'){
+    videos=VIDEO_DATA.mindset;
+  }
+  const list=document.getElementById('video-list');
+  if(!list)return;
+  list.innerHTML='';
+  videos.forEach(v=>{
+    list.innerHTML+=`<div class="video-card">
+      <div class="video-thumb"><iframe src="${v.url}" allowfullscreen loading="lazy"></iframe></div>
+      <div class="video-meta">
+        <div class="video-title">${v.title}</div>
+        <div class="video-desc">${v.desc}</div>
+      </div>
+    </div>`;
+  });
+}
+
+function contentTab(tab,btn) {
+  document.querySelectorAll('.content-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderVideos(tab);
+  if(tab==='pos'){APP.tasks.tactico=true;markTaskDone('tactico',true);saveTasks();updateProgress();checkAllDone();}
+}
+
+// ═══════════════════════════════════════════════
+// PROGRESS
+// ═══════════════════════════════════════════════
+function renderProgress() {
+  const tests=APP.tests;
+  const regDate=APP.regDate||Date.now();
+  const now=Date.now();
+  const daysSince=Math.floor((now-regDate)/(1000*60*60*24));
+  const daysLeft=30-daysSince;
+  const locked=document.getElementById('progress-locked');
+  if(locked){
+    if(daysLeft>0){
+      locked.style.display='block';
+      const cd=document.getElementById('progress-countdown');
+      if(cd)cd.textContent=daysLeft+' dias restantes';
+    } else {
+      locked.style.display='none';
+    }
+  }
+  if(tests){
+    const bs=document.getElementById('base-stats');
+    if(bs){
+      bs.innerHTML=`
+        <div class="stat-card"><div class="stat-label">Sprint 30m</div><div class="stat-val">${tests.sprint}s</div><div class="stat-change">Referencia inicial</div></div>
+        <div class="stat-card"><div class="stat-label">Salto CMJ</div><div class="stat-val">${tests.cmj}cm</div><div class="stat-change">Referencia inicial</div></div>
+        <div class="stat-card"><div class="stat-label">Yo-Yo</div><div class="stat-val">${tests.yoyo}m</div><div class="stat-change">Referencia inicial</div></div>
+        <div class="stat-card"><div class="stat-label">Agilidad 505</div><div class="stat-val">${tests.t505}s</div><div class="stat-change">Referencia inicial</div></div>
+      `;
+    }
+  }
+  renderBadges();
+}
+
+function renderBadges() {
+  const grid=document.getElementById('badges-grid');
+  if(!grid)return;
+  const streak=APP.streak;
+  const badges=[
+    {name:'Primera sesion',icon:'S',earned:true},
+    {name:'Racha de 3 dias',icon:'3',earned:streak>=3},
+    {name:'Racha de 7 dias',icon:'7',earned:streak>=7},
+    {name:'Racha de 14 dias',icon:'14',earned:streak>=14},
+    {name:'Racha de 30 dias',icon:'30',earned:streak>=30},
+    {name:'Semana perfecta',icon:'P',earned:false},
+  ];
+  grid.innerHTML='';
+  badges.forEach(b=>{
+    grid.innerHTML+=`<div class="badge ${b.earned?'earned':''}">${b.icon} ${b.name}</div>`;
+  });
+}
+
+function saveSurvey(){alert('Encuesta guardada. Gracias por tu seguimiento semanal.');}
+
+// ═══════════════════════════════════════════════
+// SESSION LOG
+// ═══════════════════════════════════════════════
+function renderSessionDate(){
+  const el=document.getElementById('session-date');
+  if(!el)return;
+  const d=new Date();
+  const days=['Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
+  const months=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  el.textContent=days[d.getDay()]+' '+d.getDate()+' de '+months[d.getMonth()];
+}
+
+const CONCLUSIONS=[
+  'Buena sesion. Segun el RPE indicado, la carga de manana se ajustara para optimizar la recuperacion sin perder adaptacion.',
+  'El registro muestra un esfuerzo elevado. Prioriza el descanso esta noche. 8h de sueno aceleraran la sintesis proteica.',
+  'Sesion correctamente registrada. La consistencia en el registro es lo que permite ajustar el plan con precision.',
+  'Esfuerzo optimo registrado. La proxima sesion se diseñara para mantener la progresion sin sobrecargar las mismas fibras.',
+  'Gracias por el detalle en el registro. Cuanto mas preciso seas, mejor podre ajustar la carga semanal para tu objetivo.',
+];
+
+function saveSession(){
+  const text=document.getElementById('session-what');
+  if(!text||!text.value.trim()){alert('Describe tu sesion antes de guardar');return;}
+  const rpe=APP.ratings['rpe']||5;
+  const concIdx=rpe>=8?0:(rpe>=6?1:2);
+  const conclusion=CONCLUSIONS[concIdx];
+  document.getElementById('conclusion-text').textContent=conclusion;
+  document.getElementById('session-conclusion').style.display='block';
+  APP.tasks.session=true;
+  markTaskDone('session',true);
+  saveTasks();updateProgress();checkAllDone();
+  localStorage.setItem('efc_session_'+APP.user+'_'+todayStr(),JSON.stringify({what:text.value,rpe}));
+}
+
+// ═══════════════════════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════════════════════
+function showNotif(title,msg){
+  document.getElementById('notif-title').textContent=title;
+  document.getElementById('notif-msg').textContent=msg;
+  document.getElementById('notif-overlay').classList.add('show');
+}
+function closeNotif(){document.getElementById('notif-overlay').classList.remove('show');}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  initDayChips();
+  // Check if already logged in
+  const lastUser=localStorage.getItem('efc_lastuser');
+  if(lastUser){
+    APP.user=lastUser;
+    APP.regDate=JSON.parse(localStorage.getItem('efc_user_'+lastUser)||'{}').regDate;
+    loadUserData();
+    if(APP.profile&&APP.tests&&APP.objectives)enterMain();
+  }
+  // Add test input listeners
+  ['sprint','cmj','yoyo','505'].forEach(t=>{
+    const el=document.getElementById('t-'+t);
+    if(el){el.addEventListener('input',()=>{
+      const done=document.getElementById('td-'+t);
+      if(done)done.classList.toggle('show',el.value.length>0);
+    });}
+  });
+});
+
+// Save last user on enterMain
+const origEnterMain=enterMain;
+function enterMain(){
+  if(APP.user)localStorage.setItem('efc_lastuser',APP.user);
+  origEnterMain.call(this,...arguments);
+}
+// Handle daily reset at midnight
+function checkDailyReset(){
+  const key='efc_lastday_'+APP.user;
+  const today=todayStr();
+  const last=localStorage.getItem(key);
+  if(last!==today){
+    localStorage.setItem(key,today);
+    // tasks reset automatically by date key
+  }
+}
+</script>
+</body>
+</html>
